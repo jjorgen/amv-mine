@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="amv-rest-services:war">
+    <output-path>$PROJECT_DIR$/amv-web-services/target</output-path>
+    <root id="archive" name="amvRestServices.war">
+      <element id="artifact" artifact-name="amv-rest-services:war exploded" />
+    </root>
+  </artifact>
+</component>

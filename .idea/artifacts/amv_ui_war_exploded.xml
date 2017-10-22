@@ -1,0 +1,16 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-war" name="amv-ui:war exploded">
+    <output-path>$PROJECT_DIR$/amv-ui/target/amvWeb</output-path>
+    <root id="root">
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="amv-ui" />
+        </element>
+      </element>
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/amv-ui/target/amvWeb/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="javaee-facet-resources" facet="amv-ui/web/Web" />
+    </root>
+  </artifact>
+</component>

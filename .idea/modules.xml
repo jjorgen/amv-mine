@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/amv.iml" filepath="$PROJECT_DIR$/amv.iml" />
+      <module fileurl="file://$PROJECT_DIR$/amv-web-services/amv-rest-services.iml" filepath="$PROJECT_DIR$/amv-web-services/amv-rest-services.iml" />
+      <module fileurl="file://$PROJECT_DIR$/amv-ui/amv-ui.iml" filepath="$PROJECT_DIR$/amv-ui/amv-ui.iml" />
+    </modules>
+  </component>
+</project>
