@@ -3,13 +3,14 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.nsu.dcis</groupId>
-  <artifactId>amv</artifactId>
+  <artifactId>amv-mine</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>
-    <module>amv-web-services</module>
-    <module>amv-ui</module>
+      <module>amv-web-services</module>
+      <module>amv-ui</module>
+      <module>amv-core</module>
   </modules>
 
   <name>amv-mine</name>

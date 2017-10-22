@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/' >
+
+	<appender name="consoleAppender" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="conversionPattern" value="%5p [%d] [%t] [%F:%L] - %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="fileAppender" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="file" value="C:/log/amv.log" />
+		<param name="datePattern" value="'.'yyyy-MM-dd" />
+	    <param name="append" value="true" />
+	    <param name="threshold" value="DEBUG" />
+	    <layout class="org.apache.log4j.PatternLayout">
+	        <param name="ConversionPattern" value="%5p [%d] [%t] [%F:%L] - %m%n" />
+	    </layout>
+	</appender>
+
+	<root>
+		<level value ="info" />
+		<appender-ref ref="consoleAppender"/>
+		<appender-ref ref="fileAppender" />
+	</root>
+
+</log4j:configuration>
