@@ -82,6 +82,13 @@
             <version>5.1.6</version>
         </dependency>
 
+        <!--<dependency>-->
+            <!--<groupId>org.nsu.dcis</groupId>-->
+            <!--<artifactId>amv-rest-services</artifactId>-->
+            <!--<version>1.0-SNAPSHOT</version>-->
+        <!--</dependency>-->
+
+
         <!--&lt;!&ndash;  batik references for JHotDraw &ndash;&gt;-->
         <!--<dependency>-->
             <!--<groupId>batik</groupId>-->

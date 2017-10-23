@@ -2,6 +2,7 @@ package org.nsu.dcis.core.util;
 
 import org.springframework.stereotype.Component;
 
+@Component
 public class AmvClientConfiguration {
     private String executionTracesMining;
     private String cloneDetectionMining;

@@ -6,7 +6,8 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
         http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.2.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd">
-    <context:component-scan base-package="org.nsu.dcis.amv" />
+
+    <context:component-scan base-package="org.nsu.dcis.core" />
 
     <context:annotation-config/>
     <tx:annotation-driven transaction-manager="txManager" />
@@ -23,13 +24,6 @@
                 <value>classpath:amv.properties</value>
             </list>
         </property>
-    </bean>
-
-    <bean id="amvConfiguration" class="org.nsu.dcis.core.core.util.AmvConfiguration">
-        <property name="jhotdrawSourceRoot" value="${jhotdraw.source.root}"/>
-        <property name="jhotdrawExcludedDirectoryList" value="${jhotdraw.excluded.directory.list}"/>
-        <property name="jhotdrawIncludeFileExtensions" value="${jhotdraw.include.file.extensions}"/>
-
     </bean>
 
     <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">

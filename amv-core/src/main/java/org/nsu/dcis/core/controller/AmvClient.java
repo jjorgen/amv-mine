@@ -1,10 +1,10 @@
 package org.nsu.dcis.core.controller;
 
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.apache.log4j.Logger;
 
+import java.util.Map;
 
 @Controller
 public class AmvClient {
@@ -14,23 +14,24 @@ public class AmvClient {
 
     private Logger log = Logger.getLogger(getClass().getName());
 
-    public static void main(String[] args) {
-        amvClient.run(args);
-    }
+//    public static void main(String[] args) {
+//        amvClient.run(args);
+//    }
 
-    public void run(String[] args) {
-        listParametersPassedWhenStartingApplication(args);
-        dispatch(args);
-        if (isValidArgumentsPassedForUseCase(args)) {
-            ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
-            AmvClientController amvClientController = getAmvClientController(context);
-            amvClientController.start(args);
-        } else {
-            terminateApplicationAbnormally(args);
-        }
-    }
+//    public void run(String[] args) {
+//        listParametersPassedWhenStartingApplication(args);
+//        getAspectMiningResults(args);
+//        if (isValidArgumentsPassedForUseCase(args)) {
+//            ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+//            AmvClientController amvClientController = getAmvClientController(context);
+//            amvClientController.start(args);
+//        } else {
+//            terminateApplicationAbnormally(args);
+//        }
+//    }
 
-    private void dispatch(String[] args) {
+    public void getAspectMiningResults(Map<String, String> aspectMineMap) {
+        log.info("Dispatching: " + aspectMineMap);
     }
 
     private AmvClientController getAmvClientController(ApplicationContext context) {
