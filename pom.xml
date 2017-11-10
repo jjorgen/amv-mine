@@ -10,7 +10,7 @@
   <modules>
       <module>amv-web-services</module>
       <module>amv-ui</module>
-      <module>amv-core</module>
+      <module>amv-controller</module>
   </modules>
 
   <name>amv-mine</name>
