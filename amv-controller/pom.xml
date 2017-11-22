@@ -82,6 +82,19 @@
             <version>5.1.6</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.github.javaparser</groupId>
+            <artifactId>javaparser-core</artifactId>
+            <version>3.0.1-alpha.5-RELEASE</version>
+        </dependency>
+
+        <!--<dependency>-->
+            <!--<groupId>com.github.javaparser</groupId>-->
+            <!--<artifactId>javaparser-core</artifactId>-->
+            <!--<version>10.0.1-RELEASE</version>-->
+        <!--</dependency>-->
+
+
         <!--<dependency>-->
         <!--<groupId>org.nsu.dcis</groupId>-->
         <!--<artifactId>amv-rest-services</artifactId>-->
@@ -116,18 +129,21 @@
         <!--</dependency>-->
 
         <!-- https://mvnrepository.com/artifact/com.github.javaparser/javaparser-core -->
-        <dependency>
-            <groupId>com.github.javaparser</groupId>
-            <artifactId>javaparser-core</artifactId>
-            <version>3.0.0-alpha.6</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.github.javaparser</groupId>-->
+            <!--<artifactId>javaparser-core</artifactId>-->
+            <!--<version>3.0.1-alpha10-RELEASE</version>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>com.github.javaparser</groupId>
-            <artifactId>javaparser-core</artifactId>
-            <version>3.0.0-alpha.6</version>
-            <classifier>sources</classifier>
-        </dependency>
+
+        <!--3.0.1-alpha10-RELEASE-->
+
+        <!--<dependency>-->
+            <!--<groupId>com.github.javaparser</groupId>-->
+            <!--<artifactId>javaparser-core</artifactId>-->
+            <!--<version>3.0.0-alpha.6</version>-->
+            <!--<classifier>sources</classifier>-->
+        <!--</dependency>-->
 
         <!-- Test dependencies -->
         <!--<dependency>-->
@@ -250,4 +266,13 @@
             <!--</plugin>-->
         </plugins>
     </build>
+
+    <repositories>
+        <repository>
+            <id>nexus</id>
+            <name>3rdParty</name>
+            <url>http://localhost:8085/nexus/content/repositories/3rdParty/</url>
+        </repository>
+    </repositories>
+
 </project>
