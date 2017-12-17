@@ -64,20 +64,34 @@ public class CodeCloneMiningService {
     }
 
     public CodeCloneMiningResult compareMethodBodies(MethodRepresentation compareFrom, MethodRepresentation compareTo) {
+        CodeCloneMiningResult  cloneMiningResult = null;
         if (compareFrom.getFullMethodName().equals(compareTo.getFullMethodName())) {
             log.info("EQUALS EQUALS EQUALS EQUALS EQUALS ");
         }
+
+//        log.info("");
+//        log.info("COMPARE FROM:");
+//        log.info(compareFrom.getStringifiedWithoutComments());
+//        log.info("");
+//        log.info("COMPARE TO:");
+//        log.info(compareTo.getStringifiedWithoutComments());
 
         int fromTopOfMethodLineCount = 0;
         int fromBottomOfMethodLineCount = 0;
         fromTopOfMethodLineCount = getFromTopOfMethodLineCount(compareFrom, compareTo);
         fromBottomOfMethodLineCount = getFromBottomOfMethodLineCount(compareFrom, compareTo);
+        if (fromTopOfMethodLineCount > 2 && fromBottomOfMethodLineCount > 2 && !compareFrom.getFilePath().equals(compareTo.getFilePath())) {
+            log.info("From method: " + compareFrom.getStringifiedWithoutComments());
+            log.info("To method: " + compareTo.getStringifiedWithoutComments());
+        }
+
         if (fromTopOfMethodLineCount > 0 || fromBottomOfMethodLineCount > 0) {
-            return new CodeCloneMiningResult(compareFrom, compareTo, fromTopOfMethodLineCount, fromBottomOfMethodLineCount);
+            cloneMiningResult = new CodeCloneMiningResult(compareFrom, compareTo, fromTopOfMethodLineCount, fromBottomOfMethodLineCount);
         }
         else {
-            return new CodeCloneMiningResult();
+            cloneMiningResult =  new CodeCloneMiningResult();
         }
+        return cloneMiningResult;
     }
 
     private int getFromTopOfMethodLineCount(MethodRepresentation compareFrom, MethodRepresentation compareTo) {
