@@ -24,7 +24,7 @@ public class AmvConfigurationInstrumentation {
     }
 
     public List<String> getExcludedDirectoryList() {
-        String jhotdrawExcludedDirectoryList = amvConfiguration.getJhotdrawExcludedDirectoryList();
+        String jhotdrawExcludedDirectoryList = amvConfiguration.getJhotdrawExcludedDirectoryCommaDelimitedList();
         StringTokenizer st = new StringTokenizer(jhotdrawExcludedDirectoryList, ",");
         List<String> excludedDirectoryList = new ArrayList<>();
         while(st.hasMoreElements()) {

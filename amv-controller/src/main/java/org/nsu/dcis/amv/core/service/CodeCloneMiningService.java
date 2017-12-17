@@ -4,6 +4,7 @@ import com.github.javaparser.ast.MethodRepresentation;
 import org.apache.log4j.Logger;
 import org.nsu.dcis.amv.core.domain.CodeCloneMiningResult;
 import org.nsu.dcis.amv.core.domain.FileScanResult;
+import org.nsu.dcis.amv.core.util.AmvConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,12 +22,22 @@ import java.util.Set;
 public class CodeCloneMiningService {
 
     @Autowired
+    private AmvConfiguration amvConfiguration;
+
+    @Autowired
     FileScanningService fileScanningService;
 
     @Autowired
     MethodRepresentationService methodRepresentationService;
 
     private Logger log = Logger.getLogger(getClass().getName());
+
+
+    public void mineForAspects() {
+        getCodeCloneMiningResults(amvConfiguration.getJhotdrawSourceRoot(),
+                                  amvConfiguration.getExcludedDirectoryList(),
+                                  amvConfiguration.getFileExtensions());
+    }
 
 
     public List<CodeCloneMiningResult> getCodeCloneMiningResults(String rootDir, List<String> excludedDirectoryList, Set<String> fileExtensions) {

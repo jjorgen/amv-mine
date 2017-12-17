@@ -2,9 +2,7 @@ package org.nsu.dcis.amv.core.util;
 
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.StringTokenizer;
+import java.util.*;
 
 /**
  * Created by John Jorgensen on 3/7/2017.
@@ -28,7 +26,17 @@ public class AmvConfiguration {
         this.jhotdrawExcludedDirectoryList = jhotdrawExcludedDirectoryList;
     }
 
-    public String getJhotdrawExcludedDirectoryList() {
+    public List<String> getExcludedDirectoryList() {
+        String jhotdrawExcludedDirectoryList = getJhotdrawExcludedDirectoryCommaDelimitedList();
+        StringTokenizer st = new StringTokenizer(jhotdrawExcludedDirectoryList, ",");
+        List<String> excludedDirectoryList = new ArrayList<>();
+        while(st.hasMoreElements()) {
+            excludedDirectoryList.add(((String)st.nextElement()).toUpperCase());
+        }
+        return excludedDirectoryList;
+    }
+
+    public String getJhotdrawExcludedDirectoryCommaDelimitedList() {
         return jhotdrawExcludedDirectoryList;
     }
 
