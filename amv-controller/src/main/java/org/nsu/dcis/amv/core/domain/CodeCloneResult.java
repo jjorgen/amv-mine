@@ -1,20 +1,26 @@
 package org.nsu.dcis.amv.core.domain;
 
 import com.github.javaparser.ast.MethodRepresentation;
+import org.apache.log4j.Logger;
 import org.nsu.dcis.amv.core.util.Pair;
-import com.github.javaparser.ast.CompilationUnit;
 
-import static org.nsu.dcis.amv.core.domain.CodeCloneMiningResult.Type.*;
+import static org.nsu.dcis.amv.core.domain.CodeCloneResult.Type.*;
 
 /**
  * Created by John Jorgensen on 3/7/2017.
  */
-public class CodeCloneMiningResult {
+public class CodeCloneResult {
     private int fromTopOfMethodLineCount;
     private int fromBottomMethodLineCount;
+    private Logger log = Logger.getLogger(getClass().getName());
+
     private Pair<MethodRepresentation, MethodRepresentation> methodPair;
 
-    public CodeCloneMiningResult() {
+    public CodeCloneResult() {
+    }
+
+    public boolean isSameMethods() {
+        return isEmpty();
     }
 
     public enum Type {
@@ -37,7 +43,7 @@ public class CodeCloneMiningResult {
         }
     }
 
-    public CodeCloneMiningResult(MethodRepresentation compareFrom, MethodRepresentation compareTo, int fromTopOfMethodLineCount, int fromBottomMethodLineCount) {
+    public CodeCloneResult(MethodRepresentation compareFrom, MethodRepresentation compareTo, int fromTopOfMethodLineCount, int fromBottomMethodLineCount) {
         this.fromTopOfMethodLineCount = fromTopOfMethodLineCount;
         this.fromBottomMethodLineCount = fromBottomMethodLineCount;
         methodPair = new Pair<MethodRepresentation, MethodRepresentation>(compareFrom, compareTo);
@@ -89,5 +95,25 @@ public class CodeCloneMiningResult {
 
     public Pair<MethodRepresentation, MethodRepresentation> getMethodPair() {
         return methodPair;
+    }
+
+    public void display() {
+        MethodRepresentation compareFrom = getMethodPair().getFirst();
+        MethodRepresentation compareTo = getMethodPair().getSecond();
+        log.info("\nAdvice Candidate Type: " + getType() +
+        "\nFirst Method: " + compareFrom.getFullMethodName() +
+        "\n" + compareFrom.getStringifiedWithoutComments() +
+        "\nSecond Method: " + compareTo.getFullMethodName() +
+        "\n" + compareTo.getStringifiedWithoutComments());
+    }
+
+    public void displaytemp() {
+        log.info("\nAdvice Candidate Type: " + getType());
+        MethodRepresentation compareFrom = getMethodPair().getFirst();
+        log.info("\nFrom Method Name: " + compareFrom.getFullMethodName());
+        log.info("\nClone: compareFrom: " + compareFrom.getStringifiedWithoutComments());
+        MethodRepresentation compareTo = getMethodPair().getSecond();
+        log.info("\nTo Method Name:   " + compareTo.getFullMethodName());
+        log.info("\nClone: compareTo: " + compareTo.getStringifiedWithoutComments());
     }
 }
