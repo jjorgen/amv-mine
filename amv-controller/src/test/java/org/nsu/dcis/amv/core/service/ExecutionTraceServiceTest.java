@@ -36,51 +36,7 @@ public class ExecutionTraceServiceTest {
     private String METHOD_EXECUTION_RELATIONS_FILE = "C:/log/method_execution_relations.log";
 
     @Test
-    public void getRelationsWithACallingContext() throws Exception {
-        BufferedReader executionTraceLogFileReader = fileUtil.openFileForReadingLines(FULL_EXECUTION_TRACE_LOG_FILE);
-        List<InsideRelationsTree> insideRelationsTreeList = getInsideRelationsTree(executionTraceLogFileReader);
-        fileUtil.closeFileForReadingLines(executionTraceLogFileReader);
-
-        List<InsideRelation> insideRelations = new ArrayList<>();
-        for (InsideRelationsTree insideRelationsTree : insideRelationsTreeList) {
-            insideRelations.addAll(insideRelationsTree.getInsideRelations());
-        }
-        log.info("Total number of relations: " + insideRelations.size());
-
-        List<InsideRelation> insideRelationsWithCallingContext = new ArrayList<>();
-        for (InsideRelation insideRelation : insideRelations) {
-            if (insideRelation.hasCallingContext()) {
-                insideRelationsWithCallingContext.add(insideRelation);
-            }
-        }
-        log.info("Number of relations with calling context: " + insideRelationsWithCallingContext.size());
-    }
-
-    @Test
-    public void getAllRelations() throws Exception {
-        BufferedReader executionTraceLogFileReader = fileUtil.openFileForReadingLines(FULL_EXECUTION_TRACE_LOG_FILE);
-        List<InsideRelationsTree> insideRelationsTreeList = getInsideRelationsTree(executionTraceLogFileReader);
-        fileUtil.closeFileForReadingLines(executionTraceLogFileReader);
-
-        List<InsideRelation> insideRelations = new ArrayList<>();
-        for (InsideRelationsTree insideRelationsTree : insideRelationsTreeList) {
-            insideRelations.addAll(insideRelationsTree.getInsideRelations());
-        }
-        Assert.assertEquals("Number of relations expected was 5714",5714, insideRelations.size());
-
-        for (InsideRelation insideRelation : insideRelations) {
-            log.info(insideRelation);
-        }
-
-        BufferedWriter bufferedWriter = fileUtil.openFileForWritingLines(METHOD_EXECUTION_RELATIONS_FILE);
-        for (InsideRelation insideRelation : insideRelations) {
-            fileUtil.writeLineToFile(bufferedWriter, insideRelation.toString());
-        }
-        fileUtil.closeFileWritingLines(bufferedWriter);
-    }
-
-    @Test
-    public void getFourRelations() throws Exception {
+    public void getAllRelationsWithCallingContext() throws Exception {
         BufferedReader executionTraceLogFileReader = fileUtil.openFileForReadingLines(FULL_EXECUTION_TRACE_LOG_FILE);
         List<InsideRelationsTree> insideRelationsTreeList = getInsideRelationsTree(executionTraceLogFileReader);
         fileUtil.closeFileForReadingLines(executionTraceLogFileReader);
@@ -137,11 +93,58 @@ public class ExecutionTraceServiceTest {
         log.info("Number of cross cutting concerns from inside relations: " + insideRelationsPairs.size());
 
         BufferedWriter bufferedWriter = fileUtil.openFileForWritingLines(METHOD_EXECUTION_RELATIONS_FILE);
+        int relationCount = 0;
         for (Pair insideRelationsPair : insideRelationsPairs) {
-            fileUtil.writeLineToFile(bufferedWriter, "\n\n***********  Start of relation ***********  \n\n\n");
+
+            fileUtil.writeLineToFile(bufferedWriter, "\n\n***********  Start of relation ***********  " +
+                                                                (++relationCount) + "\n\n\n");
             fileUtil.writeLineToFile(bufferedWriter, insideRelationsPair.getFirst().toString());
             fileUtil.writeLineToFile(bufferedWriter, insideRelationsPair.getSecond().toString());
             fileUtil.writeLineToFile(bufferedWriter, "\n\n***********  End of relation ***********  \n\n\n");
+        }
+        fileUtil.closeFileWritingLines(bufferedWriter);
+    }
+
+    @Test
+    public void getRelationsWithACallingContext() throws Exception {
+        BufferedReader executionTraceLogFileReader = fileUtil.openFileForReadingLines(FULL_EXECUTION_TRACE_LOG_FILE);
+        List<InsideRelationsTree> insideRelationsTreeList = getInsideRelationsTree(executionTraceLogFileReader);
+        fileUtil.closeFileForReadingLines(executionTraceLogFileReader);
+
+        List<InsideRelation> insideRelations = new ArrayList<>();
+        for (InsideRelationsTree insideRelationsTree : insideRelationsTreeList) {
+            insideRelations.addAll(insideRelationsTree.getInsideRelations());
+        }
+        log.info("Total number of relations: " + insideRelations.size());
+
+        List<InsideRelation> insideRelationsWithCallingContext = new ArrayList<>();
+        for (InsideRelation insideRelation : insideRelations) {
+            if (insideRelation.hasCallingContext()) {
+                insideRelationsWithCallingContext.add(insideRelation);
+            }
+        }
+        log.info("Number of relations with calling context: " + insideRelationsWithCallingContext.size());
+    }
+
+    @Test
+    public void getAllRelations() throws Exception {
+        BufferedReader executionTraceLogFileReader = fileUtil.openFileForReadingLines(FULL_EXECUTION_TRACE_LOG_FILE);
+        List<InsideRelationsTree> insideRelationsTreeList = getInsideRelationsTree(executionTraceLogFileReader);
+        fileUtil.closeFileForReadingLines(executionTraceLogFileReader);
+
+        List<InsideRelation> insideRelations = new ArrayList<>();
+        for (InsideRelationsTree insideRelationsTree : insideRelationsTreeList) {
+            insideRelations.addAll(insideRelationsTree.getInsideRelations());
+        }
+        Assert.assertEquals("Number of relations expected was 5714",5714, insideRelations.size());
+
+        for (InsideRelation insideRelation : insideRelations) {
+            log.info(insideRelation);
+        }
+
+        BufferedWriter bufferedWriter = fileUtil.openFileForWritingLines(METHOD_EXECUTION_RELATIONS_FILE);
+        for (InsideRelation insideRelation : insideRelations) {
+            fileUtil.writeLineToFile(bufferedWriter, insideRelation.toString());
         }
         fileUtil.closeFileWritingLines(bufferedWriter);
     }
