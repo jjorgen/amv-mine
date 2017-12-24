@@ -1,7 +1,8 @@
 package org.nsu.dcis.amv.core.util;
 
 /**
- * Created by jorgej2 on 12/9/2017.
+ * This class holds one method and the level at which this was
+ * read from the file.
  */
 public class TraceMethod {
     private int level;

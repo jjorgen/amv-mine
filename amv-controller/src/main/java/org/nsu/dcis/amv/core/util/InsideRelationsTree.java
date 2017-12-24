@@ -30,6 +30,11 @@ public class InsideRelationsTree {
         //log.info("Root for next relation tree: " + nextRootTraceMethod);
     }
 
+    /**
+     * Get the root trace method for the next inside relations tree.
+     *
+     * @return root trace method
+     */
     public TraceMethod getRootForNextRelationTree() {
         return nextRootTraceMethod;
     }
@@ -42,7 +47,7 @@ public class InsideRelationsTree {
         return nextRootTraceMethod.isEmpty();
     }
 
-    public List<InsideRelation> getInsideRelations() {
+    public List<InsideRelation> getAllInsideRelationsInATree() {
         TraceMethod[] traceMethods = traceMethodsInRelation.toArray(new TraceMethod[0]);
         List<InsideRelation> insideRelations = new ArrayList<>();
         int topNodeInTree = 0;

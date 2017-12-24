@@ -38,71 +38,8 @@ public class ExecutionTraceServiceTest {
     @Test
     public void getAllRelationsWithCallingContext() throws Exception {
         BufferedReader executionTraceLogFileReader = fileUtil.openFileForReadingLines(FULL_EXECUTION_TRACE_LOG_FILE);
-        List<InsideRelationsTree> insideRelationsTreeList = getInsideRelationsTree(executionTraceLogFileReader);
-        fileUtil.closeFileForReadingLines(executionTraceLogFileReader);
-
-        List<InsideRelation> insideRelations = new ArrayList<>();
-        for (InsideRelationsTree insideRelationsTree : insideRelationsTreeList) {
-            insideRelations.addAll(insideRelationsTree.getInsideRelations());
-        }
-
-        InsideRelation[] insideRelationsArray = insideRelations.toArray(new InsideRelation[0]);
-        InsideRelation[] insideRelationsArrayCmp = insideRelations.toArray(new InsideRelation[0]);
-
-        Map<Integer, List<InsideRelation>> insideRelationMap = new TreeMap<>();
-        int idx = 0;
-        for (int i = 0; i < insideRelationsArray.length; i++) {
-            InsideRelation insideRelationOne = insideRelationsArray[i];
-            List<InsideRelation> equalRelations = new ArrayList<>();
-            equalRelations.add(insideRelationOne);
-            for (int j = 0; j < insideRelationsArrayCmp.length; j++) {
-                InsideRelation insideRelationTwo = insideRelationsArrayCmp[j];
-                if (i == j) {
-                    continue;
-                } else {
-                    if (insideRelationOne.equals(insideRelationTwo)) {
-                        equalRelations.add(insideRelationTwo);
-                    }
-                }
-            }
-            if (equalRelations.size() > 1) {
-                insideRelationMap.put(idx++, equalRelations);
-            }
-        }
-
-        Set<Integer> keys = insideRelationMap.keySet();
-        log.info("Number of equal relations: " + keys.size());
-
-        for (Integer key : keys) {
-            List<InsideRelation> equalRelations = insideRelationMap.get(key);
-            log.info("Equal Relations size: " + equalRelations.size());
-        }
-
-        List<Pair<InsideRelation, InsideRelation>> insideRelationsPairs = new ArrayList<>();
-        outer: for (Integer key : keys) {
-            List<InsideRelation> equalRelations = insideRelationMap.get(key);
-            InsideRelation firstInsideRelation = equalRelations.get(0);
-            for (InsideRelation insideRelation : equalRelations) {
-                if (!firstInsideRelation.equalContext(insideRelation)) {
-                    insideRelationsPairs.add(new Pair(firstInsideRelation, insideRelation));
-                    continue outer;
-                }
-            }
-            log.info("Equal Relations size: " + equalRelations.size());
-        }
-        log.info("Number of cross cutting concerns from inside relations: " + insideRelationsPairs.size());
-
-        BufferedWriter bufferedWriter = fileUtil.openFileForWritingLines(METHOD_EXECUTION_RELATIONS_FILE);
-        int relationCount = 0;
-        for (Pair insideRelationsPair : insideRelationsPairs) {
-
-            fileUtil.writeLineToFile(bufferedWriter, "\n\n***********  Start of relation ***********  " +
-                                                                (++relationCount) + "\n\n\n");
-            fileUtil.writeLineToFile(bufferedWriter, insideRelationsPair.getFirst().toString());
-            fileUtil.writeLineToFile(bufferedWriter, insideRelationsPair.getSecond().toString());
-            fileUtil.writeLineToFile(bufferedWriter, "\n\n***********  End of relation ***********  \n\n\n");
-        }
-        fileUtil.closeFileWritingLines(bufferedWriter);
+        List<Pair<InsideRelation, InsideRelation>> insideRelationsPairs = executionTraceService.getAllInsideRelations(executionTraceLogFileReader);
+        executionTraceService.writeInsideRelations(insideRelationsPairs, METHOD_EXECUTION_RELATIONS_FILE);
     }
 
     @Test
@@ -113,7 +50,7 @@ public class ExecutionTraceServiceTest {
 
         List<InsideRelation> insideRelations = new ArrayList<>();
         for (InsideRelationsTree insideRelationsTree : insideRelationsTreeList) {
-            insideRelations.addAll(insideRelationsTree.getInsideRelations());
+            insideRelations.addAll(insideRelationsTree.getAllInsideRelationsInATree());
         }
         log.info("Total number of relations: " + insideRelations.size());
 
@@ -134,7 +71,7 @@ public class ExecutionTraceServiceTest {
 
         List<InsideRelation> insideRelations = new ArrayList<>();
         for (InsideRelationsTree insideRelationsTree : insideRelationsTreeList) {
-            insideRelations.addAll(insideRelationsTree.getInsideRelations());
+            insideRelations.addAll(insideRelationsTree.getAllInsideRelationsInATree());
         }
         Assert.assertEquals("Number of relations expected was 5714",5714, insideRelations.size());
 
@@ -157,7 +94,7 @@ public class ExecutionTraceServiceTest {
 
         List<InsideRelation> insideRelations = new ArrayList<>();
         for (InsideRelationsTree insideRelationsTree : insideRelationsTreeList) {
-            insideRelations.addAll(insideRelationsTree.getInsideRelations());
+            insideRelations.addAll(insideRelationsTree.getAllInsideRelationsInATree());
         }
         Assert.assertEquals("Four relations were expected",4, insideRelations.size());
 

@@ -3,16 +3,13 @@ package org.nsu.dcis.amv.core.service;
 import org.apache.log4j.Logger;
 import org.nsu.dcis.amv.core.domain.EventTracesResults;
 import org.nsu.dcis.amv.core.exception.ExecutionTraceException;
-import org.nsu.dcis.amv.core.util.ExecutionTraceRelation;
-import org.nsu.dcis.amv.core.util.FileUtil;
-import org.nsu.dcis.amv.core.util.InsideRelationsTree;
-import org.nsu.dcis.amv.core.util.TraceMethod;
+import org.nsu.dcis.amv.core.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.util.ArrayList;
+import java.util.*;
 
 @Service
 public class ExecutionTraceService {
@@ -21,6 +18,7 @@ public class ExecutionTraceService {
     FileUtil fileUtil;
 
     private Logger log = Logger.getLogger(getClass().getName());
+    private Object allInsideRelations;
 
     public EventTracesResults mineForAspects(String pathToMethodExecutionTraceLog) {
         log.info("Mine using event traces.");
@@ -94,6 +92,10 @@ public class ExecutionTraceService {
         return false;
     }
 
+    /**
+     * This method gets one inside relations tree. The relations tree is created from methods
+     * read from the raw executions trace file.
+     */
     public InsideRelationsTree getNextInsideRelationsTree(InsideRelationsTree nextInsideRelationsTree,
                                                           BufferedReader executionTraceLogFileReader) {
 
@@ -112,12 +114,142 @@ public class ExecutionTraceService {
         return new InsideRelationsTree(traceMethodsInRelationsTree, traceMethod);
     }
 
+    /**
+     * This method reads one trace method from the raw execution trace log file.
+     * A trace method consists of one line with the traced method and the level
+     * at which this method was executed. The level corresponds to the number of
+     * indentations at which the method was written.
+     *
+     * @param executionTraceLogFileReader
+     * @return
+     */
     public TraceMethod getTraceMethod(BufferedReader executionTraceLogFileReader) {
         String lineReadFromFile = fileUtil.readLineFromFile(executionTraceLogFileReader);
-        if (lineReadFromFile == null) {
+        if (isLastLineReadFromFile(lineReadFromFile)) {
             return new TraceMethod();
         }
         int level = getLevel(lineReadFromFile);
         return new TraceMethod(level, lineReadFromFile);
+    }
+
+    private boolean isLastLineReadFromFile(String lineReadFromFile) {
+        return lineReadFromFile == null;
+    }
+
+    public List<Pair<InsideRelation, InsideRelation>>  getAllInsideRelations(BufferedReader executionTraceLogFileReader) {
+
+        List<InsideRelationsTree> insideRelationsTreeList = getInsideRelationsTree(executionTraceLogFileReader);
+        fileUtil.closeFileForReadingLines(executionTraceLogFileReader);
+
+        List<InsideRelation> allInsideRelations = new ArrayList<>();
+        for (InsideRelationsTree insideRelationsTree : insideRelationsTreeList) {
+            allInsideRelations.addAll(insideRelationsTree.getAllInsideRelationsInATree());
+        }
+
+        InsideRelation[] insideRelationsArray = getArrayRepresentationOfAllInsideRelations(allInsideRelations);
+        InsideRelation[] insideRelationsArrayCmp = getArrayRepresentationOfAllInsideRelations(allInsideRelations);
+
+        Map<Integer, List<InsideRelation>> setsOfInsideRelations = getSetsOfInsideRelations(insideRelationsArray, insideRelationsArrayCmp);
+
+        Set<Integer> keys = setsOfInsideRelations.keySet();
+        log.info("Number of set of equal relations: " + keys.size());
+
+        logNumberOfRelationsInRelationsSets(setsOfInsideRelations, keys);
+
+        List<Pair<InsideRelation, InsideRelation>> insideRelationsPairs = getSetsOfInstanceRelationsWithDifferentContexts(setsOfInsideRelations, keys);
+
+        return insideRelationsPairs;
+    }
+
+    private List<Pair<InsideRelation, InsideRelation>> getSetsOfInstanceRelationsWithDifferentContexts(Map<Integer, List<InsideRelation>> setsOfInsideRelations, Set<Integer> keys) {
+        List<Pair<InsideRelation, InsideRelation>> insideRelationsPairs = new ArrayList<>();
+        outer: for (Integer key : keys) {
+            List<InsideRelation> equalRelations = setsOfInsideRelations.get(key);
+            InsideRelation firstInsideRelation = equalRelations.get(0);
+            for (InsideRelation insideRelation : equalRelations) {
+                if (!firstInsideRelation.equalContext(insideRelation)) {
+                    insideRelationsPairs.add(new Pair(firstInsideRelation, insideRelation));
+                    continue outer;
+                }
+            }
+            log.info("Equal Relations size: " + equalRelations.size());
+        }
+        log.info("Number of cross cutting concerns from inside relations: " + insideRelationsPairs.size());
+        return insideRelationsPairs;
+    }
+
+    private void logNumberOfRelationsInRelationsSets(Map<Integer, List<InsideRelation>> setsOfInsideRelations, Set<Integer> keys) {
+        for (Integer key : keys) {
+            List<InsideRelation> equalRelation = setsOfInsideRelations.get(key);
+            log.info("Equal Relations size: " + equalRelation.size());
+        }
+    }
+
+    private Map<Integer, List<InsideRelation>> getSetsOfInsideRelations(InsideRelation[] insideRelationsArray, InsideRelation[] insideRelationsArrayCmp) {
+        Map<Integer, List<InsideRelation>> insideRelationMap = new TreeMap<>();
+        int idx = 0;
+        for (int i = 0; i < insideRelationsArray.length; i++) {
+            InsideRelation insideRelationOne = insideRelationsArray[i];
+            List<InsideRelation> equalRelations = new ArrayList<>();
+            equalRelations.add(insideRelationOne);
+            for (int j = 0; j < insideRelationsArrayCmp.length; j++) {
+                InsideRelation insideRelationTwo = insideRelationsArrayCmp[j];
+                if (i == j) {
+                    continue;
+                } else {
+                    if (insideRelationOne.equals(insideRelationTwo)) {
+                        equalRelations.add(insideRelationTwo);
+                    }
+                }
+            }
+            if (equalRelations.size() > 1) {
+                insideRelationMap.put(idx++, equalRelations);
+            }
+        }
+        return insideRelationMap;
+    }
+
+    private InsideRelation[] getArrayRepresentationOfAllInsideRelations(List<InsideRelation> allInsideRelations) {
+        return allInsideRelations.toArray(new InsideRelation[0]);
+    }
+
+    /**
+     * This method gets the list of inside relations trees. The relations tree is created from methods
+     * read from the raw executions trace file.
+     *
+     * @param executionTraceLogFileReader the raw execution trace file
+     * @return
+     */
+    private List<InsideRelationsTree> getInsideRelationsTree(BufferedReader executionTraceLogFileReader) {
+        List<InsideRelationsTree> insideRelationsTreeList = new ArrayList<>();
+        TraceMethod traceMethodFromFile = getTraceMethod(executionTraceLogFileReader);
+        InsideRelationsTree nextInsideRelationsTree = new InsideRelationsTree(traceMethodFromFile);
+        do {
+            nextInsideRelationsTree = getNextInsideRelationsTree(
+                    nextInsideRelationsTree, executionTraceLogFileReader);
+            if (moreInsideRelationsToRead(nextInsideRelationsTree)) {
+                insideRelationsTreeList.add(nextInsideRelationsTree);
+            }
+        } while (moreInsideRelationsToRead(nextInsideRelationsTree));
+        return insideRelationsTreeList;
+    }
+
+    private boolean moreInsideRelationsToRead(InsideRelationsTree nextInsideRelationsTree) {
+        return !nextInsideRelationsTree.isLast();
+    }
+
+    public void writeInsideRelations(List<Pair<InsideRelation, InsideRelation>> insideRelationsPairs, String methodExecutionRelationsFile) {
+        BufferedWriter bufferedWriter = fileUtil.openFileForWritingLines(methodExecutionRelationsFile);
+        int relationCount = 0;
+        for (Pair insideRelationsPair : insideRelationsPairs) {
+
+            fileUtil.writeLineToFile(bufferedWriter, "\n\n***********  Start of relation ***********  " +
+                    (++relationCount) + "\n\n\n");
+            fileUtil.writeLineToFile(bufferedWriter, insideRelationsPair.getFirst().toString());
+            fileUtil.writeLineToFile(bufferedWriter, insideRelationsPair.getSecond().toString());
+            fileUtil.writeLineToFile(bufferedWriter, "\n\n***********  End of relation ***********  \n\n\n");
+        }
+        fileUtil.closeFileWritingLines(bufferedWriter);
+
     }
 }
