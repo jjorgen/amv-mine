@@ -10,6 +10,9 @@ import static org.nsu.dcis.amv.core.domain.CodeCloneResult.Type.*;
  * Created by John Jorgensen on 3/7/2017.
  */
 public class CodeCloneResult {
+    public static final int TOP_OF_METHOD_TOKEN_THRESHOLD = 4;
+    public static final int BOTTOM_OF_METHOD_TOKEN_THRESHOLD = 4;
+
     private int fromTopOfMethodLineCount;
     private int fromBottomMethodLineCount;
     private Logger log = Logger.getLogger(getClass().getName());
@@ -32,12 +35,12 @@ public class CodeCloneResult {
             return EMPTY;
         } else if (isClone()) {
             return CLONE;
+        } else if (isAroundAdviceCandidate()) {
+            return AROUND_ADVICE_CANDIDATE;
         } else if (isBeforeAdviceCandidate()) {
             return BEFORE_ADVICE_CANDIDATE;
         } else if (isAfterAdviceCandidate()) {
             return AFTER_ADVICE_CANDIDATE;
-        } else if (isAroundAdviceCandidate()) {
-            return AROUND_ADVICE_CANDIDATE;
         } else {
             throw new IllegalStateException("Invalid code clone mining result");
         }
@@ -61,9 +64,10 @@ public class CodeCloneResult {
         return false;
     }
 
-    public boolean isBeforeAdviceCandidate() {
+    public boolean isAroundAdviceCandidate() {
         if (isEmpty()) return false;
-        if (fromTopOfMethodLineCount > 0 && fromBottomMethodLineCount == 0) {
+        if (fromTopOfMethodLineCount > TOP_OF_METHOD_TOKEN_THRESHOLD &&
+            fromBottomMethodLineCount > BOTTOM_OF_METHOD_TOKEN_THRESHOLD) {
             return true;
         } else {
             return false;
@@ -72,16 +76,16 @@ public class CodeCloneResult {
 
     public boolean isAfterAdviceCandidate() {
         if (isEmpty()) return false;
-        if (fromBottomMethodLineCount > 0 && fromTopOfMethodLineCount == 0) {
+        if (fromBottomMethodLineCount > BOTTOM_OF_METHOD_TOKEN_THRESHOLD && fromTopOfMethodLineCount <= TOP_OF_METHOD_TOKEN_THRESHOLD) {
             return true;
         } else {
             return false;
         }
     }
 
-    public boolean isAroundAdviceCandidate() {
+    public boolean isBeforeAdviceCandidate() {
         if (isEmpty()) return false;
-        if (fromTopOfMethodLineCount > 0 && fromBottomMethodLineCount > 0) {
+        if (fromTopOfMethodLineCount > TOP_OF_METHOD_TOKEN_THRESHOLD && fromBottomMethodLineCount <= BOTTOM_OF_METHOD_TOKEN_THRESHOLD) {
             return true;
         } else {
             return false;

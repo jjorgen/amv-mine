@@ -65,35 +65,40 @@ public class CodeCloneMiningMethodComparisonsTest {
         displayCloneStatistics(codeCloneMiningResult.getCodeCloneResults());
     }
 
-    private void displayCloneStatisticsForBeforeAdviceAspect(List<CodeCloneResult> codeCloneResults) {
-        int aspectIdx = 0;
-        for (CodeCloneResult cloneMiningResult : codeCloneResults) {
-            if (cloneMiningResult.isBeforeAdviceCandidate()) {
-                log.info("*************************************************************");
-                log.info("*********** Aspect Number: '" + (++aspectIdx) +"' ***********");
-                log.info("*************************************************************");
-                inspectCloneResult(cloneMiningResult);
-                if (aspectIdx == 1197) {
-                    System.out.println("Aspect Number: '1197'");
-                    break;
-                }
-            }
-        }
-    }
-
     @Test
     public void getCodeCloningResultsForAllClasses() throws Exception {
         CodeCloneMiningResult codeCloneMiningResult =
                 codeCloneMiningService.getCodeCloneMiningResults(amvConfigurationInstrumentation.getRootDir(),
                         amvConfigurationInstrumentation.getExcludedDirectoryList(),
                         amvConfigurationInstrumentation.getFileExtensions());
-        displayCodeCloneResults(codeCloneMiningResult);
-        displayBeforeAdviceCandidates(codeCloneMiningResult);
 
+//        displayCodeCloneResults(codeCloneMiningResult);
+        CodeCloneStatistics codeCloneStatistics = codeCloneMiningResult.getCodeCloneStatistics();
+        log.info("Code Clone Statistics: " + codeCloneStatistics);
+        displayBeforeAdviceCandidates(codeCloneMiningResult);
+        displayAfterCandidates(codeCloneMiningResult);
+        displayAroundAdviceCandidates(codeCloneMiningResult);
+        displayClones(codeCloneMiningResult);
+
+    }
+
+    private void displayClones(CodeCloneMiningResult codeCloneMiningResult) {
+        List<CodeCloneResult> clones = codeCloneMiningResult.getClone();
+        log.info("**********************************************************************************");
+        log.info("The Clone Count was: " + codeCloneMiningResult.getClone().size());
+        log.info("**********************************************************************************");
+        for (CodeCloneResult clone : clones) {
+            log.info("**********************************************************************************");
+            clone.display();
+            log.info("**********************************************************************************");
+        }
     }
 
     private void displayBeforeAdviceCandidates(CodeCloneMiningResult codeCloneMiningResult) {
         List<CodeCloneResult> beforeAdviceCandidates = codeCloneMiningResult.getBeforeAdviceCandidates();
+        log.info("**********************************************************************************");
+        log.info("The Before Advice Candidate Count was: " + codeCloneMiningResult.getBeforeAdviceCandidates().size());
+        log.info("**********************************************************************************");
         for (CodeCloneResult codeCloneResult : beforeAdviceCandidates) {
             log.info("**********************************************************************************");
             codeCloneResult.display();
@@ -101,13 +106,37 @@ public class CodeCloneMiningMethodComparisonsTest {
         }
     }
 
+    private void displayAfterCandidates(CodeCloneMiningResult codeCloneMiningResult) {
+        List<CodeCloneResult> afterAdviceCandidates = codeCloneMiningResult.getAfterAdviceCandidates();
+        log.info("**********************************************************************************");
+        log.info("The After Advice Candidate was: " + codeCloneMiningResult.getAfterAdviceCandidates().size());
+        log.info("**********************************************************************************");
+        for (CodeCloneResult codeCloneResult : afterAdviceCandidates) {
+            log.info("**********************************************************************************");
+            codeCloneResult.display();
+            log.info("**********************************************************************************");
+        }
+    }
+
+    private void displayAroundAdviceCandidates(CodeCloneMiningResult codeCloneMiningResult) {
+        log.info("**********************************************************************************");
+        log.info("The Around Advice Count was: " + codeCloneMiningResult.getAroundAdviceCandidates().size());
+        log.info("**********************************************************************************");
+        List<CodeCloneResult> aroundAdviceCandidates = codeCloneMiningResult.getAroundAdviceCandidates();
+        for (CodeCloneResult codeCloneResult : aroundAdviceCandidates) {
+            log.info("**********************************************************************************");
+            codeCloneResult.display();
+            log.info("**********************************************************************************");
+        }
+    }
+
     private void displayCodeCloneResults(CodeCloneMiningResult codeCloneMiningResult) {
-        CodeCloneStatistics codeCloneStatistics = codeCloneMiningResult.getCodeCloneStatistics();
-        log.info("Before Advice Count: " + codeCloneStatistics.getBeforeAdviceCount());
-        log.info("After Advice Count: " + codeCloneStatistics.getAfterAdviceCount());
-        log.info("Around Advice Count: " + codeCloneStatistics.getAroundAdviceCount());
-        log.info("Clone Count: " + codeCloneStatistics.getCloneCount());
-        log.info("Empty Count: " + codeCloneStatistics.getEmptyCount());
+        List<CodeCloneResult> codeCloneResults = codeCloneMiningResult.getCodeCloneResults();
+        for (CodeCloneResult codeCloneResult : codeCloneResults) {
+            log.info("**********************************************************************************");
+            codeCloneResult.display();
+            log.info("**********************************************************************************");
+        }
     }
 
     private CodeCloneStatistics displayCloneStatistics(List<CodeCloneResult> codeCloneResults) {
@@ -142,16 +171,5 @@ public class CodeCloneMiningMethodComparisonsTest {
 //        log.info("Around: " + aroundAdvice);
 //        log.info("After:  " + afterAdvice);
         return new CodeCloneStatistics(emptyCount, cloneCount, beforeAdvice, aroundAdvice, afterAdvice);
-    }
-
-    private void inspectCloneResult(CodeCloneResult codeCloneResult) {
-        log.info("---------------------------------------------------------------------------");
-        MethodRepresentation compareFrom = codeCloneResult.getMethodPair().getFirst();
-        log.info("\nFrom Method Name: " + compareFrom.getFullMethodName());
-        log.info("\nClone: compareFrom: " + compareFrom.getStringifiedWithoutComments());
-        MethodRepresentation compareTo = codeCloneResult.getMethodPair().getSecond();
-        log.info("\nTo Method Name:   " + compareTo.getFullMethodName());
-        log.info("\nClone: compareTo: " + compareTo.getStringifiedWithoutComments());
-        log.info("***************************************************************************");
     }
 }

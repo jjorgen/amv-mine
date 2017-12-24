@@ -4,6 +4,7 @@ import com.github.javaparser.ast.MethodRepresentation;
 import org.apache.log4j.Logger;
 import org.nsu.dcis.amv.core.domain.CodeCloneResult;
 import org.nsu.dcis.amv.core.domain.FileScanResult;
+import org.nsu.dcis.amv.core.exception.AspectCloneException;
 import org.nsu.dcis.amv.core.util.AmvConfiguration;
 import org.nsu.dcis.amv.core.util.CodeCloneMiningResult;
 import org.nsu.dcis.amv.core.util.CodeCloneStatistics;
@@ -14,8 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
+import static org.nsu.dcis.amv.core.domain.CodeCloneResult.BOTTOM_OF_METHOD_TOKEN_THRESHOLD;
+import static org.nsu.dcis.amv.core.domain.CodeCloneResult.TOP_OF_METHOD_TOKEN_THRESHOLD;
 
 /**
  * Created by John Jorgensen on 3/12/2017.
@@ -32,9 +33,6 @@ public class CodeCloneMiningService {
     @Autowired
     MethodRepresentationService methodRepresentationService;
 
-    private static final int TOP_OF_METHOD_LINE_THRESHOLD = 3;
-    private static final int BOTTOM_OF_METHOD_LINE_THRESHOLD = 3;
-
     private Logger log = Logger.getLogger(getClass().getName());
 
     public void mineForAspects() {
@@ -46,13 +44,13 @@ public class CodeCloneMiningService {
     public CodeCloneMiningResult getCodeCloneMiningResults(String rootDir, List<String> excludedDirectoryList, Set<String> fileExtensions) {
         FileScanResult fileScanResult = fileScanningService.scan(rootDir, excludedDirectoryList, fileExtensions);
         List<MethodRepresentation> methodRepresentations = methodRepresentationService.getMethodRepresentations(fileScanResult);
-        List<CodeCloneResult> codeCloneResults = new ArrayList<CodeCloneResult>();
+        List<CodeCloneResult> codeCloneResults = new ArrayList();
         for (int i = 0; i < methodRepresentations.size(); i++) {
             for (int j = i + 1; j < methodRepresentations.size(); j++) {
                 CodeCloneResult codeCloneResult = getCodeCloneMiningResult(methodRepresentations.get(i), methodRepresentations.get(j));
-                if (!codeCloneResult.isSameMethods()) {
+//                if (!codeCloneResult.isSameMethods()) {
                     codeCloneResults.add(codeCloneResult);
-                }
+//                }
             }
         }
         CodeCloneMiningResult codeCloneMiningResult = new CodeCloneMiningResult(getCodeCloneStatistics(codeCloneResults),
@@ -73,7 +71,6 @@ public class CodeCloneMiningService {
                     break;
                 case CLONE:
                     cloneCount++;
-//                    inspectCloneResult(codeCloneResult);
                     break;
                 case BEFORE_ADVICE_CANDIDATE:
                     beforeAdvice++;
@@ -113,19 +110,13 @@ public class CodeCloneMiningService {
     public CodeCloneResult compareMethodBodies(MethodRepresentation compareFrom, MethodRepresentation compareTo) {
         CodeCloneResult cloneMiningResult = null;
         if (compareFrom.getFullMethodName().equals(compareTo.getFullMethodName())) {
-            log.info("EQUALS EQUALS EQUALS EQUALS EQUALS ");
+            throw new AspectCloneException("The first method is the same as the second method. This means that " +
+                                           "the method is compared to itself. This should never happen.");
         }
 
-        int fromTopOfMethodLineCount = 0;
-        int fromBottomOfMethodLineCount = 0;
-        fromTopOfMethodLineCount = getFromTopOfMethodLineCount(compareFrom, compareTo);
-        fromBottomOfMethodLineCount = getFromBottomOfMethodLineCount(compareFrom, compareTo);
-        if (fromTopOfMethodLineCount > 2 && fromBottomOfMethodLineCount > 2 && !compareFrom.getFilePath().equals(compareTo.getFilePath())) {
-//            log.info("From method: " + compareFrom.getStringifiedWithoutComments());
-//            log.info("To method: " + compareTo.getStringifiedWithoutComments());
-        }
-
-        if (fromTopOfMethodLineCount > TOP_OF_METHOD_LINE_THRESHOLD || fromBottomOfMethodLineCount > BOTTOM_OF_METHOD_LINE_THRESHOLD) {
+        int fromTopOfMethodLineCount = getFromTopOfMethodLineCount(compareFrom, compareTo);
+        int fromBottomOfMethodLineCount = getFromBottomOfMethodLineCount(compareFrom, compareTo);
+        if (fromTopOfMethodLineCount > TOP_OF_METHOD_TOKEN_THRESHOLD || fromBottomOfMethodLineCount > BOTTOM_OF_METHOD_TOKEN_THRESHOLD) {
             cloneMiningResult = new CodeCloneResult(compareFrom, compareTo, fromTopOfMethodLineCount, fromBottomOfMethodLineCount);
         } else {
             cloneMiningResult = new CodeCloneResult();
