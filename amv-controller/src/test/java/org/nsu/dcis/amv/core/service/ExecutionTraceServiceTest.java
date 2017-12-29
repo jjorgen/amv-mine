@@ -36,10 +36,58 @@ public class ExecutionTraceServiceTest {
     private String METHOD_EXECUTION_RELATIONS_FILE = "C:/log/method_execution_relations.log";
 
     @Test
+    public void getOutsideRelationWithDifferentCallingContextsTest() throws Exception {
+        BufferedReader executionTraceLogFileReader = fileUtil.openFileForReadingLines(FULL_EXECUTION_TRACE_LOG_FILE);
+        Set<InsideRelation> insideRelationSet = executionTraceService.getOutsideRelations(executionTraceLogFileReader);
+    }
+
+    @Test
+    public void getOutsideRelationsTreeTest() throws Exception {
+        BufferedReader executionTraceLogFileReader = fileUtil.openFileForReadingLines(FULL_EXECUTION_TRACE_LOG_FILE);
+        executionTraceService.getOutsideRelationsTree(executionTraceLogFileReader);
+    }
+
+    /**
+     * DEVELOPER NOTE:
+     * This is the main test method for getting inside relations. This is working correctly and is
+     * ready to be added to the production code.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void getInsideRelationsWithDifferentCallingContextsTest() throws Exception {
+        BufferedReader executionTraceLogFileReader = fileUtil.openFileForReadingLines(FULL_EXECUTION_TRACE_LOG_FILE);
+        Set<InsideRelation> insideRelationSet = executionTraceService.getInsideRelations(executionTraceLogFileReader);
+        Map<Integer, Set<InsideRelation>> insideRelationsWithMultipleContexts = executionTraceService.getInsideRelationsWithMultipleContexts(insideRelationSet);
+
+        Set<Integer> keys = insideRelationsWithMultipleContexts.keySet();
+        for (Integer key : keys) {
+            Set<InsideRelation> insideRelation = insideRelationsWithMultipleContexts.get(key);
+            log.info("*******************************************************");
+            log.info(insideRelation);
+        }
+        log.info("*******************************************************");
+    }
+
+    @Test
     public void getAllRelationsWithCallingContext() throws Exception {
         BufferedReader executionTraceLogFileReader = fileUtil.openFileForReadingLines(FULL_EXECUTION_TRACE_LOG_FILE);
         List<Pair<InsideRelation, InsideRelation>> insideRelationsPairs = executionTraceService.getAllInsideRelations(executionTraceLogFileReader);
-        executionTraceService.writeInsideRelations(insideRelationsPairs, METHOD_EXECUTION_RELATIONS_FILE);
+        //executionTraceService.writeInsideRelations(insideRelationsPairs, METHOD_EXECUTION_RELATIONS_FILE);
+
+        Set<InsideRelation> insideRelationSet = executionTraceService.getSetOfInstanceRelations(insideRelationsPairs);
+
+//        for (InsideRelation insideRelation: insideRelationSet) {
+//            log.info(insideRelation);
+//        }
+
+        Map<Integer, Set<InsideRelation>> instanceRelationsWithDifferentContext = executionTraceService.getInstanceRelationsWithDifferentContext(insideRelationSet);
+        Set<Integer> keys = instanceRelationsWithDifferentContext.keySet();
+
+//        for (Integer key : keys) {
+//            Set<InsideRelation> insideRelations = instanceRelationsWithDifferentContext.get(key);
+//            //log.info("For Key *********************************************'" + key + " " + insideRelations);
+//        }
     }
 
     @Test

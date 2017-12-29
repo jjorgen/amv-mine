@@ -44,4 +44,25 @@ public class TraceMethod {
     public boolean isEmpty() {
         return level == -1;
     }
+
+    public String getTraceMethod() {
+        String contextLine = getLineReadFromFile();
+        int startPos = contextLine.indexOf("Entering[");
+        int endPos = contextLine.indexOf(")]");
+        return contextLine.substring(startPos + 9, endPos + 1);
+    }
+
+
+    public boolean equals(TraceMethod traceMethod) {
+        if (traceMethod != null) {
+            String thisTraceMethod = this.getTraceMethod();
+            String compareTraceMethod = traceMethod.getTraceMethod();
+            if (thisTraceMethod.equals(compareTraceMethod)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        return false;
+    }
 }

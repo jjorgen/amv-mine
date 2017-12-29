@@ -99,9 +99,6 @@ public class InsideRelation {
             if (this.getContextMethod().equals(insideRelation.getContextMethod())) {
                 return true;
             } else {
-//                log.info("!!!!!  DIFFERENT CONTEXT !!!!!!!!!!");
-//                log.info("First context: " + getContextMethod());
-//                log.info("Second context: " + insideRelation.getContextMethod());
                 return false;
             }
         }
