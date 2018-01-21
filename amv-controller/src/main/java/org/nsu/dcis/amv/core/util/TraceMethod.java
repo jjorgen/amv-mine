@@ -5,10 +5,12 @@ package org.nsu.dcis.amv.core.util;
  * read from the file.
  */
 public class TraceMethod {
+    private int traceFileLineNumber;
     private int level;
     private String lineReadFromFile;
 
-    public TraceMethod(int level, String lineReadFromFile) {
+    public TraceMethod(int lineNumber, int level, String lineReadFromFile) {
+        this.traceFileLineNumber = lineNumber;
         this.level = level;
         this.lineReadFromFile = lineReadFromFile;
     }
@@ -18,20 +20,16 @@ public class TraceMethod {
         this.lineReadFromFile = "";
     }
 
+    public int getTraceFileLineNumber() {
+        return traceFileLineNumber;
+    }
+
     public int getLevel() {
         return level;
     }
 
     public String getLineReadFromFile() {
         return lineReadFromFile;
-    }
-
-    @Override
-    public String toString() {
-        return "TraceMethod{" +
-                "level=" + level +
-                ", lineReadFromFile='" + lineReadFromFile + '\'' +
-                '}';
     }
 
     public boolean isTestMethod() {
@@ -65,4 +63,21 @@ public class TraceMethod {
         }
         return false;
     }
+
+    @Override
+    public String toString() {
+        return "TraceMethod{" +
+                "traceFileLineNumber=" + traceFileLineNumber +
+                ", level=" + level +
+                ", lineReadFromFile='" + lineReadFromFile + '\'' +
+                '}';
+    }
+
+    //    @Override
+//    public String toString() {
+//        return "TraceMethod{" +
+//                "level=" + level +
+//                ", lineReadFromFile='" + lineReadFromFile + '\'' +
+//                '}';
+//    }
 }

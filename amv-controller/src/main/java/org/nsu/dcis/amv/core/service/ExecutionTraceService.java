@@ -19,6 +19,8 @@ public class ExecutionTraceService {
 
     private Logger log = Logger.getLogger(getClass().getName());
     private Object allInsideRelations;
+    private Object outsideBeforeRelations;
+    private int traceFileLineNumber = 0;
 
     public EventTracesResults mineForAspects(String pathToMethodExecutionTraceLog) {
         log.info("Mine using event traces.");
@@ -96,44 +98,22 @@ public class ExecutionTraceService {
      * This method gets one inside relations tree. The relations tree is created from methods
      * read from the raw executions trace file.
      */
-    public InsideRelationsTree getNextOutsideRelationsTree(InsideRelationsTree nextInsideRelationsTree,
+    public OutsideRelationsTree getNextOutsideRelationsTree(OutsideRelationsTree nextOutsideRelationsTree,
                                                           BufferedReader executionTraceLogFileReader) {
 
         ArrayList<TraceMethod> traceMethodsInRelationsTree = new ArrayList<>();
-        traceMethodsInRelationsTree.add(nextInsideRelationsTree.getRootForNextRelationTree());
+        traceMethodsInRelationsTree.add(nextOutsideRelationsTree.getRootForNextRelationTree());
 
         TraceMethod traceMethod = getTraceMethod(executionTraceLogFileReader);
-        if (traceMethod.getLevel() > nextInsideRelationsTree.getRootForNextRelationTree().getLevel()) {
+        if (traceMethod.getLevel() > nextOutsideRelationsTree.getRootForNextRelationTree().getLevel()) {
             int expectedLevel = traceMethod.getLevel();
             while (expectedLevel++ == traceMethod.getLevel()) {
                 traceMethodsInRelationsTree.add(traceMethod);
                 traceMethod = getTraceMethod(executionTraceLogFileReader);
             }
-            return new InsideRelationsTree(traceMethodsInRelationsTree, traceMethod);
+            return new OutsideRelationsTree(traceMethodsInRelationsTree, traceMethod);
         }
-        return new InsideRelationsTree(traceMethodsInRelationsTree, traceMethod);
-    }
-
-    /**
-     * This method gets one inside relations tree. The relations tree is created from methods
-     * read from the raw executions trace file.
-     */
-    public InsideRelationsTree getNextInsideRelationsTree(InsideRelationsTree nextInsideRelationsTree,
-                                                          BufferedReader executionTraceLogFileReader) {
-
-        ArrayList<TraceMethod> traceMethodsInRelationsTree = new ArrayList<>();
-        traceMethodsInRelationsTree.add(nextInsideRelationsTree.getRootForNextRelationTree());
-
-        TraceMethod traceMethod = getTraceMethod(executionTraceLogFileReader);
-        if (traceMethod.getLevel() > nextInsideRelationsTree.getRootForNextRelationTree().getLevel()) {
-            int expectedLevel = traceMethod.getLevel();
-            while (expectedLevel++ == traceMethod.getLevel()) {
-                traceMethodsInRelationsTree.add(traceMethod);
-                traceMethod = getTraceMethod(executionTraceLogFileReader);
-            }
-            return new InsideRelationsTree(traceMethodsInRelationsTree, traceMethod);
-        }
-        return new InsideRelationsTree(traceMethodsInRelationsTree, traceMethod);
+        return new OutsideRelationsTree(traceMethodsInRelationsTree, traceMethod);
     }
 
     /**
@@ -151,58 +131,64 @@ public class ExecutionTraceService {
             return new TraceMethod();
         }
         int level = getLevel(lineReadFromFile);
-        return new TraceMethod(level, lineReadFromFile);
+        TraceMethod traceMethod = new TraceMethod(++traceFileLineNumber, level, lineReadFromFile);
+        if (traceMethod.getTraceFileLineNumber() == 25) {
+            log.info(traceMethod);
+        }
+
+//        log.info(traceMethod);
+        return traceMethod;
     }
 
     private boolean isLastLineReadFromFile(String lineReadFromFile) {
         return lineReadFromFile == null;
     }
 
-    public List<Pair<InsideRelation, InsideRelation>>  getAllInsideRelations(BufferedReader executionTraceLogFileReader) {
+    public List<Pair<Relation, Relation>>  getAllInsideRelations(BufferedReader executionTraceLogFileReader) {
 
-        List<InsideRelationsTree> insideRelationsTreeList = getInsideRelationsTree(executionTraceLogFileReader);
+        List<InsideRelationsTree> insideRelationsTreeList = getInsideRelationsTrees(executionTraceLogFileReader);
         fileUtil.closeFileForReadingLines(executionTraceLogFileReader);
 
-        List<InsideRelation> allInsideRelations = new ArrayList<>();
+        List<Relation> allRelations = new ArrayList<>();
         for (InsideRelationsTree insideRelationsTree : insideRelationsTreeList) {
-            allInsideRelations.addAll(insideRelationsTree.getAllInsideRelationsInATree());
+            allRelations.addAll(insideRelationsTree.getAllInsideRelationsInATree());
         }
 
-        InsideRelation[] insideRelationsArray = getArrayRepresentationOfAllInsideRelations(allInsideRelations);
-        InsideRelation[] insideRelationsArrayCmp = getArrayRepresentationOfAllInsideRelations(allInsideRelations);
+        Relation[] relationsArray = getArrayRepresentationOfAllInsideRelations(allRelations);
+        Relation[] relationsArrayCmp = getArrayRepresentationOfAllInsideRelations(allRelations);
 
-        Map<Integer, List<InsideRelation>> setsOfInsideRelations = getSetsOfInsideRelations(insideRelationsArray, insideRelationsArrayCmp);
+        Map<Integer, List<Relation>> setsOfInsideRelations = getSetsOfInsideRelations(relationsArray, relationsArrayCmp);
 
         Set<Integer> keys = setsOfInsideRelations.keySet();
 //        log.info("Number of set of equal relations: " + keys.size());
 
 //        logNumberOfRelationsInRelationsSets(setsOfInsideRelations, keys);
 
-        Map<Integer, List<InsideRelation>> mapOfRelationsInDifferentContexts = getSetOfRelationsInDifferentContexts(setsOfInsideRelations);
+        Map<Integer, List<Relation>> mapOfRelationsInDifferentContexts = getSetOfRelationsInDifferentContexts(setsOfInsideRelations);
         log.info(mapOfRelationsInDifferentContexts);
 
-        List<Pair<InsideRelation, InsideRelation>> insideRelationsPairs = getSetsOfInstanceRelationsWithDifferentContexts(setsOfInsideRelations, keys);
+        List<Pair<Relation, Relation>> insideRelationsPairs = getSetsOfInstanceRelationsWithDifferentContexts(setsOfInsideRelations, keys);
 
         return insideRelationsPairs;
     }
 
-    private Map<Integer, List<InsideRelation>> getSetOfRelationsInDifferentContexts(Map<Integer, List<InsideRelation>> setsOfInsideRelations) {
-        Map<Integer, List<InsideRelation>> mapOfRelationsInDifferentContexts = new TreeMap<>();
+    private Map<Integer, List<Relation>> getSetOfRelationsInDifferentContexts(Map<Integer, List<Relation>> setsOfInsideRelations) {
+        Map<Integer, List<Relation>> mapOfRelationsInDifferentContexts = new TreeMap<>();
         Set<Integer> keySet = setsOfInsideRelations.keySet();
 
         outer: for (Integer key : keySet) {
-            List<InsideRelation> equalRelations = setsOfInsideRelations.get(key);
-            InsideRelation firstInsideRelation = equalRelations.get(0);
-            List<InsideRelation> relationsInDifferentContexts = new ArrayList<> ();
-            relationsInDifferentContexts.add(firstInsideRelation);
+            List<Relation> equalRelations = setsOfInsideRelations.get(key);
+            Relation firstRelation = equalRelations.get(0);
+            List<Relation> relationsInDifferentContexts = new ArrayList<> ();
+            relationsInDifferentContexts.add(firstRelation);
             boolean firstComparison = true;
-            for (InsideRelation insideRelation : equalRelations) {
+            for (Relation relation : equalRelations) {
                 if (firstComparison) {
                     firstComparison = false;
                 } else {
-                    for (InsideRelation insideRelationCmp : relationsInDifferentContexts) {
-                        if (!insideRelation.equals(insideRelationCmp)) {
-                            relationsInDifferentContexts.add(insideRelation);
+                    for (Relation relationCmp : relationsInDifferentContexts) {
+                        if (!relation.equals(relationCmp)) {
+                            relationsInDifferentContexts.add(relation);
                         }
                     }
                 }
@@ -214,14 +200,14 @@ public class ExecutionTraceService {
         return mapOfRelationsInDifferentContexts;
     }
 
-    private List<Pair<InsideRelation, InsideRelation>> getSetsOfInstanceRelationsWithDifferentContexts(Map<Integer, List<InsideRelation>> setsOfInsideRelations, Set<Integer> keys) {
-        List<Pair<InsideRelation, InsideRelation>> insideRelationsPairs = new ArrayList<>();
+    private List<Pair<Relation, Relation>> getSetsOfInstanceRelationsWithDifferentContexts(Map<Integer, List<Relation>> setsOfInsideRelations, Set<Integer> keys) {
+        List<Pair<Relation, Relation>> insideRelationsPairs = new ArrayList<>();
         outer: for (Integer key : keys) {
-            List<InsideRelation> equalRelations = setsOfInsideRelations.get(key);
-            InsideRelation firstInsideRelation = equalRelations.get(0);
-            for (InsideRelation insideRelation : equalRelations) {
-                if (!firstInsideRelation.equalContext(insideRelation)) {
-                    insideRelationsPairs.add(new Pair(firstInsideRelation, insideRelation));
+            List<Relation> equalRelations = setsOfInsideRelations.get(key);
+            Relation firstRelation = equalRelations.get(0);
+            for (Relation relation : equalRelations) {
+                if (!firstRelation.equalContext(relation)) {
+                    insideRelationsPairs.add(new Pair(firstRelation, relation));
                     continue outer;
                 }
             }
@@ -231,27 +217,27 @@ public class ExecutionTraceService {
         return insideRelationsPairs;
     }
 
-    private void logNumberOfRelationsInRelationsSets(Map<Integer, List<InsideRelation>> setsOfInsideRelations, Set<Integer> keys) {
+    private void logNumberOfRelationsInRelationsSets(Map<Integer, List<Relation>> setsOfInsideRelations, Set<Integer> keys) {
         for (Integer key : keys) {
-            List<InsideRelation> equalRelation = setsOfInsideRelations.get(key);
+            List<Relation> equalRelation = setsOfInsideRelations.get(key);
             log.info("Equal Relations size: " + equalRelation.size());
         }
     }
 
-    private Map<Integer, List<InsideRelation>> getSetsOfInsideRelations(InsideRelation[] insideRelationsArray, InsideRelation[] insideRelationsArrayCmp) {
-        Map<Integer, List<InsideRelation>> insideRelationMap = new TreeMap<>();
+    private Map<Integer, List<Relation>> getSetsOfInsideRelations(Relation[] relationsArray, Relation[] relationsArrayCmp) {
+        Map<Integer, List<Relation>> insideRelationMap = new TreeMap<>();
         int idx = 0;
-        for (int i = 0; i < insideRelationsArray.length; i++) {
-            InsideRelation insideRelationOne = insideRelationsArray[i];
-            List<InsideRelation> equalRelations = new ArrayList<>();
-            equalRelations.add(insideRelationOne);
-            for (int j = 0; j < insideRelationsArrayCmp.length; j++) {
-                InsideRelation insideRelationTwo = insideRelationsArrayCmp[j];
+        for (int i = 0; i < relationsArray.length; i++) {
+            Relation relationOne = relationsArray[i];
+            List<Relation> equalRelations = new ArrayList<>();
+            equalRelations.add(relationOne);
+            for (int j = 0; j < relationsArrayCmp.length; j++) {
+                Relation relationTwo = relationsArrayCmp[j];
                 if (i == j) {
                     continue;
                 } else {
-                    if (insideRelationOne.equals(insideRelationTwo)) {
-                        equalRelations.add(insideRelationTwo);
+                    if (relationOne.equals(relationTwo)) {
+                        equalRelations.add(relationTwo);
                     }
                 }
             }
@@ -262,8 +248,8 @@ public class ExecutionTraceService {
         return insideRelationMap;
     }
 
-    private InsideRelation[] getArrayRepresentationOfAllInsideRelations(List<InsideRelation> allInsideRelations) {
-        return allInsideRelations.toArray(new InsideRelation[0]);
+    private Relation[] getArrayRepresentationOfAllInsideRelations(List<Relation> allRelations) {
+        return allRelations.toArray(new Relation[0]);
     }
 
     /**
@@ -273,17 +259,17 @@ public class ExecutionTraceService {
      * @param executionTraceLogFileReader the raw execution trace file
      * @return
      */
-    public List<InsideRelationsTree> getOutsideRelationsTree(BufferedReader executionTraceLogFileReader) {
-        List<InsideRelationsTree> outsideRelationsTreeList = new ArrayList<>();
-        TraceMethod traceMethodFromFile = getTraceMethod(executionTraceLogFileReader);
-        InsideRelationsTree nextInsideRelationsTree = new InsideRelationsTree(traceMethodFromFile);
+    public List<OutsideRelationsTree> getOutsideRelationsTree(BufferedReader executionTraceLogFileReader) {
+        List<OutsideRelationsTree> outsideRelationsTreeList = new ArrayList<>();
+        TraceMethod traceMethod = getTraceMethod(executionTraceLogFileReader);
+        OutsideRelationsTree nextOutsideRelationsTree = new OutsideRelationsTree(traceMethod);
         do {
-            nextInsideRelationsTree = getNextInsideRelationsTree(
-                    nextInsideRelationsTree, executionTraceLogFileReader);
-            if (moreInsideRelationsToRead(nextInsideRelationsTree)) {
-                outsideRelationsTreeList.add(nextInsideRelationsTree);
+            nextOutsideRelationsTree = getNextOutsideRelationsTree(
+                    nextOutsideRelationsTree, executionTraceLogFileReader);
+            if (moreOutsideRelationsToRead(nextOutsideRelationsTree)) {
+                outsideRelationsTreeList.add(nextOutsideRelationsTree);
             }
-        } while (moreInsideRelationsToRead(nextInsideRelationsTree));
+        } while (moreOutsideRelationsToRead(nextOutsideRelationsTree));
         return outsideRelationsTreeList;
     }
 
@@ -294,75 +280,201 @@ public class ExecutionTraceService {
      * @param executionTraceLogFileReader the raw execution trace file
      * @return
      */
-    private List<InsideRelationsTree> getInsideRelationsTree(BufferedReader executionTraceLogFileReader) {
+    private List<InsideRelationsTree> getInsideRelationsTrees(BufferedReader executionTraceLogFileReader) {
         List<InsideRelationsTree> insideRelationsTreeList = new ArrayList<>();
-        TraceMethod traceMethodFromFile = getTraceMethod(executionTraceLogFileReader);
-        InsideRelationsTree nextInsideRelationsTree = new InsideRelationsTree(traceMethodFromFile);
+        TraceMethod traceMethod = getTraceMethod(executionTraceLogFileReader);
+
+        // Create seed for the first Inside Relations Tree
+        InsideRelationsTree nextInsideRelationsTree = new InsideRelationsTree(traceMethod);
         do {
+            // Extract the next Inside Relations Tree from the raw input file.
             nextInsideRelationsTree = getNextInsideRelationsTree(
-                    nextInsideRelationsTree, executionTraceLogFileReader);
+                nextInsideRelationsTree, executionTraceLogFileReader);
+
+            // If a valid inside relations tree was created then add this to the list.
             if (moreInsideRelationsToRead(nextInsideRelationsTree)) {
                 insideRelationsTreeList.add(nextInsideRelationsTree);
             }
+
+          // Continue if there are more inside relations trees that can be extracted from the raw input file.
         } while (moreInsideRelationsToRead(nextInsideRelationsTree));
         return insideRelationsTreeList;
+    }
+
+    /**
+     * This method gets one inside relations tree. The relations tree is created from methods
+     * read from the raw executions trace file.
+     */
+    public InsideRelationsTree getNextInsideRelationsTree(InsideRelationsTree nextInsideRelationsTree,
+                                                          BufferedReader executionTraceLogFileReader) {
+
+        // Initialize an array to hold trace methods in relations tree.
+        ArrayList<TraceMethod> traceMethodsInRelationsTree = new ArrayList<>();
+        traceMethodsInRelationsTree.add(nextInsideRelationsTree.getRootForNextRelationTree());
+
+        // Get next trace method from the raw input file that may be part of the relations tree.
+        TraceMethod traceMethod = getTraceMethod(executionTraceLogFileReader);
+
+        // This method is at a lower level than the prior method and is therefore part of a tree
+        if (traceMethod.getLevel() > nextInsideRelationsTree.getRootForNextRelationTree().getLevel()) {
+            int expectedLevel = traceMethod.getLevel();
+            while (expectedLevel++ == traceMethod.getLevel()) {
+                traceMethodsInRelationsTree.add(traceMethod);
+                traceMethod = getTraceMethod(executionTraceLogFileReader);
+            }
+            return new InsideRelationsTree(traceMethodsInRelationsTree, traceMethod);
+        }
+
+        // This method is not at a lower level. Create a new Inside Relations Tree Seed.
+        return new InsideRelationsTree(traceMethodsInRelationsTree, traceMethod);
+    }
+
+    private boolean moreOutsideRelationsToRead(OutsideRelationsTree nextOutsideRelationsTree) {
+        return !nextOutsideRelationsTree.isLast();
     }
 
     private boolean moreInsideRelationsToRead(InsideRelationsTree nextInsideRelationsTree) {
         return !nextInsideRelationsTree.isLast();
     }
 
-    public Set<InsideRelation> getSetOfInstanceRelations(List<Pair<InsideRelation, InsideRelation>> insideRelationsPairs) {
-        Set<InsideRelation> insideRelationsSet = new HashSet<InsideRelation>();
+    // Outside before  relations are those where: (1) (a) -> (b), (2) (a) and (b) are at the same level
+    public List<Relation> getOutsideBeforeRelations(BufferedReader executionTraceLogFileReader) {
+        List<OutsideBeforeRelationsTree> outsideBeforeRelationsTreeList = getOutsideBeforeRelationsTrees(executionTraceLogFileReader);
 
-        for (Pair<InsideRelation, InsideRelation> insideRelationPair :  insideRelationsPairs) {
-            InsideRelation firstInstanceRelation = insideRelationPair.getFirst();
-            InsideRelation secondInstanceRelation = insideRelationPair.getSecond();
-
-            insideRelationsSet.add(firstInstanceRelation);
-            insideRelationsSet.add(secondInstanceRelation);
+        List<Relation> allRelations = new ArrayList<>();
+        for (OutsideBeforeRelationsTree outsideBeforeRelationsTree : outsideBeforeRelationsTreeList) {
+            allRelations.addAll(outsideBeforeRelationsTree.getAllOutsideBeforeRelationsInATree());
         }
 
-        return insideRelationsSet;
+//        log.info("******************************************************");
+//        int idx = 0;
+//        for (OutsideBeforeRelationsTree outsideBeforeRelationsTree : outsideBeforeRelationsTreeList) {
+//            outsideBeforeRelationsTree.print();
+//            log.info("******************************************************");
+//            idx++;
+//            if (idx > 20) break;
+//        }
+
+        return allRelations;
     }
 
-    public Map<Integer, Set<InsideRelation>> getInstanceRelationsWithDifferentContext(Set<InsideRelation> insideRelationSet) {
-        Set<InsideRelation> exploredSet = new HashSet<>();
-        Map<Integer, Set<InsideRelation>> relationsWithDifferentContextMap = new HashMap<>();
+    // Outside before  relations are those where: (1) (a) -> (b), (2) (a) and (b) are at the same level
+    private List<OutsideBeforeRelationsTree> getOutsideBeforeRelationsTrees(BufferedReader executionTraceLogFileReader) {
+        List<OutsideBeforeRelationsTree> outsideBeforeRelationsTreeList = new ArrayList<>();
+        OutsideBeforeRelationsTree tree = new OutsideBeforeRelationsTree();
+        TraceMethod traceMethod = getTraceMethod(executionTraceLogFileReader);
+        while (!traceMethod.isEmpty()) {
+            tree.rebuildWith(traceMethod);
+            if (tree.isValid()) {
+                traceMethod = getTraceMethod(executionTraceLogFileReader);
+                if (!traceMethod.isEmpty()) {
+                    while (!traceMethod.isEmpty() && tree.willStillBeValidWhenAdding(traceMethod)) {
+                        tree.add(traceMethod);
+                        traceMethod = getTraceMethod(executionTraceLogFileReader);
+                    }
+                    addTreeToOutsideRelationsList(tree, outsideBeforeRelationsTreeList);
+                    tree = new OutsideBeforeRelationsTree();
+                } else {
+                    // The end of the file has been reached. Add the last tree to the
+                    // collection of relations tree list.
+                    addTreeToOutsideRelationsList(tree, outsideBeforeRelationsTreeList);
+                }
+            } else {
+                traceMethod = getTraceMethod(executionTraceLogFileReader);
+            }
+        }
+        return outsideBeforeRelationsTreeList;
+    }
+
+    private void addTreeToOutsideRelationsList(OutsideBeforeRelationsTree tree,
+                                               List<OutsideBeforeRelationsTree> outsideBeforeRelationsTreeList) {
+        if (!tree.containsTestRelation()) {
+            outsideBeforeRelationsTreeList.add(tree);
+        }
+    }
+
+    /**
+     * This method gets one inside relations tree. The relations tree is created from methods
+     * read from the raw executions trace file.
+     * Outside before  relations are those where: (1) (a) -> (b), (2) (a) and (b) are at the same level
+     */
+    public OutsideBeforeRelationsTree getNextOutsideBeforeRelationsTree(OutsideBeforeRelationsTree nextOutsideBeforeRelationsTree,
+                                                                        BufferedReader executionTraceLogFileReader) {
+        // Initialize an array to hold trace methods in relations tree.
+        ArrayList<TraceMethod> traceMethodsInRelationsTree = new ArrayList<>();
+        traceMethodsInRelationsTree.add(nextOutsideBeforeRelationsTree.getRootForNextRelationTree());
+
+        // Get next trace method from the raw input file that may be part of the relations tree.
+        TraceMethod traceMethod = getTraceMethod(executionTraceLogFileReader);
+        log.info(traceMethod);
+
+        if (traceMethod.getLevel() > nextOutsideBeforeRelationsTree.getRootForNextRelationTree().getLevel()) {
+            int expectedLevel = traceMethod.getLevel();
+            while (expectedLevel == traceMethod.getLevel()) {
+                traceMethodsInRelationsTree.add(traceMethod);
+                traceMethod = getTraceMethod(executionTraceLogFileReader);
+                log.info(traceMethod);
+            }
+            return new OutsideBeforeRelationsTree(traceMethodsInRelationsTree, traceMethod);
+        }
+        return new OutsideBeforeRelationsTree(traceMethodsInRelationsTree, traceMethod);
+    }
+
+    private boolean moreOutsideBeforeRelationsToRead(OutsideBeforeRelationsTree nextOutsideBeforeRelationsTree) {
+        return !nextOutsideBeforeRelationsTree.isLast();
+    }
+
+    public Set<Relation> getSetOfInstanceRelations(List<Pair<Relation, Relation>> insideRelationsPairs) {
+        Set<Relation> relationsSet = new HashSet<Relation>();
+
+        for (Pair<Relation, Relation> insideRelationPair :  insideRelationsPairs) {
+            Relation firstInstanceRelation = insideRelationPair.getFirst();
+            Relation secondInstanceRelation = insideRelationPair.getSecond();
+
+            relationsSet.add(firstInstanceRelation);
+            relationsSet.add(secondInstanceRelation);
+        }
+
+        return relationsSet;
+    }
+
+    public Map<Integer, Set<Relation>> getInstanceRelationsWithDifferentContext(Set<Relation> relationSet) {
+        Set<Relation> exploredSet = new HashSet<>();
+        Map<Integer, Set<Relation>> relationsWithDifferentContextMap = new HashMap<>();
         int key = 0;
 
-//        for (InsideRelation insideRelation : insideRelationSet) {
+//        for (Relation insideRelation : relationSet) {
 //            log.info(insideRelation);
 //        }
 
-        outer: for (InsideRelation insideRelation : insideRelationSet) {
-            for (InsideRelation exploredRelation : exploredSet) {
-                if (exploredRelation.equals(insideRelation)) {
+        outer: for (Relation relation : relationSet) {
+            for (Relation exploredRelation : exploredSet) {
+                if (exploredRelation.equals(relation)) {
                     break outer;
                 }
             }
-            exploredSet.add(insideRelation);
+            exploredSet.add(relation);
 
-            Set<InsideRelation> relationsWithDifferentContext = new HashSet<>();
-            relationsWithDifferentContext.add(insideRelation);
+            Set<Relation> relationsWithDifferentContext = new HashSet<>();
+            relationsWithDifferentContext.add(relation);
 
             Set<TraceMethod> uniqueContextSet = new HashSet<>();
-            uniqueContextSet.add(insideRelation.getContext());
+            uniqueContextSet.add(relation.getContext());
 
             int compareCount = 0;
-            for (InsideRelation insideRelationCompare : insideRelationSet) {
-                if (insideRelationCompare.equals(insideRelation) && !insideRelationCompare.equalContext(insideRelation)) {
+            for (Relation relationCompare : relationSet) {
+                if (relationCompare.equals(relation) && !relationCompare.equalContext(relation)) {
                     ++compareCount;
                     //log.info("Compare count: " + compareCount);
                     boolean newContext = true;
                     for (TraceMethod traceMethod : uniqueContextSet) {
-                        if (traceMethod.equals(insideRelation.getContext())) {
+                        if (traceMethod.equals(relation.getContext())) {
                             newContext = false;
                             break;
                         }
                     }
                     if (newContext) {
-                        relationsWithDifferentContext.add(insideRelationCompare);
+                        relationsWithDifferentContext.add(relationCompare);
                     }
                 }
             }
@@ -374,7 +486,7 @@ public class ExecutionTraceService {
         return relationsWithDifferentContextMap;
     }
 
-    public void writeInsideRelations(List<Pair<InsideRelation, InsideRelation>> insideRelationsPairs, String methodExecutionRelationsFile) {
+    public void writeInsideRelations(List<Pair<Relation, Relation>> insideRelationsPairs, String methodExecutionRelationsFile) {
         BufferedWriter bufferedWriter = fileUtil.openFileForWritingLines(methodExecutionRelationsFile);
         int relationCount = 0;
         for (Pair insideRelationsPair : insideRelationsPairs) {
@@ -389,11 +501,11 @@ public class ExecutionTraceService {
 
     }
 
-    public Set<InsideRelation> getOutsideRelations(BufferedReader executionTraceLogFileReader) {
-        List<InsideRelationsTree> outsideRelationsTree = getOutsideRelationsTree(executionTraceLogFileReader);
+    public Set<OutsideRelation> getOutsideRelations(BufferedReader executionTraceLogFileReader) {
+        List<OutsideRelationsTree> outsideRelationsTree = getOutsideRelationsTree(executionTraceLogFileReader);
         fileUtil.closeFileForReadingLines(executionTraceLogFileReader);
 
-        Set<InsideRelation> allInsideRelations = new HashSet<>();
+        Set<OutsideRelation> allInsideRelations = new HashSet<>();
 //        for (InsideRelationsTree insideRelationsTree : insideRelationsTreeList) {
 //            allInsideRelations.addAll(insideRelationsTree.getAllInsideRelationsInATree());
 //        }
@@ -401,52 +513,52 @@ public class ExecutionTraceService {
         return allInsideRelations;
     }
 
-    public Set<InsideRelation> getInsideRelations(BufferedReader executionTraceLogFileReader) {
+    public Set<Relation> getInsideRelations(BufferedReader executionTraceLogFileReader) {
 
-        List<InsideRelationsTree> insideRelationsTreeList = getOutsideRelationsTree(executionTraceLogFileReader);
+        List<InsideRelationsTree> insideRelationsTreeList = getInsideRelationsTrees(executionTraceLogFileReader);
         fileUtil.closeFileForReadingLines(executionTraceLogFileReader);
 
-        Set<InsideRelation> allInsideRelations = new HashSet<>();
+        Set<Relation> allRelations = new HashSet<>();
         for (InsideRelationsTree insideRelationsTree : insideRelationsTreeList) {
-            allInsideRelations.addAll(insideRelationsTree.getAllInsideRelationsInATree());
+            allRelations.addAll(insideRelationsTree.getAllInsideRelationsInATree());
         }
 
-        return allInsideRelations;
+        return allRelations;
     }
 
-    public Map<Integer, Set<InsideRelation>> getInsideRelationsWithMultipleContexts(Set<InsideRelation> insideRelationSet) {
-        Set<InsideRelation> exploredSet = new HashSet<>();
-        Map<Integer, Set<InsideRelation>> relationsWithDifferentContextMap = new HashMap<>();
+    public Map<Integer, Set<Relation>> getInsideRelationsWithMultipleContexts(Set<Relation> relationSet) {
+        Set<Relation> exploredRelationsSet = new HashSet<>();
+        Map<Integer, Set<Relation>> relationsWithDifferentContextMap = new HashMap<>();
         int key = 0;
 
-        outer: for (InsideRelation insideRelation : insideRelationSet) {
-            for (InsideRelation exploredRelation : exploredSet) {
-                if (exploredRelation.equals(insideRelation)) {
+        outer: for (Relation relation : relationSet) {
+            for (Relation exploredRelation : exploredRelationsSet) {
+                if (exploredRelation.equals(relation)) {
                     continue outer;
                 }
             }
-            exploredSet.add(insideRelation);
+            exploredRelationsSet.add(relation);
 
             Set<TraceMethod> uniqueContextSet= new HashSet<>();
-            uniqueContextSet.add(insideRelation.getContext());
+            uniqueContextSet.add(relation.getContext());
 
-            Set<InsideRelation> relationsWithDifferentContext = new HashSet<>();
-            relationsWithDifferentContext.add(insideRelation);
+            Set<Relation> relationsWithDifferentContext = new HashSet<>();
+            relationsWithDifferentContext.add(relation);
 
-            inner: for (InsideRelation insideRelationCompare : insideRelationSet) {
-                if (insideRelationCompare.equals(insideRelation)) {
-                    if (!insideRelationCompare.equalContext(insideRelation)) {
+            inner: for (Relation relationCompare : relationSet) {
+                if (relationCompare.equals(relation)) {
+                    if (!relationCompare.equalContext(relation)) {
                         Set<TraceMethod> uniqueContextNewSet = new HashSet<>(uniqueContextSet);
                         for (TraceMethod traceMethod : uniqueContextNewSet) {
-                            if (traceMethod.equals(insideRelationCompare.getContext())) {
+                            if (traceMethod.equals(relationCompare.getContext())) {
                                 continue inner;
                             } else {
                                 uniqueContextSet = new HashSet<>();
                                 uniqueContextSet.addAll(uniqueContextNewSet);
-                                uniqueContextSet.add(insideRelationCompare.getContext());
+                                uniqueContextSet.add(relationCompare.getContext());
                             }
                         }
-                        relationsWithDifferentContext.add(insideRelationCompare);
+                        relationsWithDifferentContext.add(relationCompare);
                     }
                 }
             }

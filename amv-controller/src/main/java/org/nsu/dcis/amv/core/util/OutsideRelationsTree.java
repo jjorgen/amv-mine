@@ -6,21 +6,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by jorgej2 on 12/9/2017.
+ * Created by jorgej2 on 12/28/2017.
  */
-public class InsideRelationsTree {
+public class OutsideRelationsTree {
     private Logger log = Logger.getLogger(getClass().getName());
 
     private TraceMethod nextRootTraceMethod = null;
     private ArrayList<TraceMethod> traceMethodsInRelation = new ArrayList<>();
 
-    public InsideRelationsTree(TraceMethod nextRootTraceMethod) {
+    public OutsideRelationsTree(TraceMethod nextRootTraceMethod) {
         this.nextRootTraceMethod = nextRootTraceMethod;
     }
 
-    public InsideRelationsTree(ArrayList<TraceMethod> traceMethodsInRelation, TraceMethod nextRootTraceMethod) {
+    public OutsideRelationsTree(ArrayList<TraceMethod> traceMethodsInRelation, TraceMethod nextRootTraceMethod) {
         this.traceMethodsInRelation = traceMethodsInRelation;
         this.nextRootTraceMethod = nextRootTraceMethod;
+    }
+
+    public void print() {
+        for (TraceMethod traceMethod : traceMethodsInRelation) {
+            log.info(traceMethod);
+        }
     }
 
     /**
@@ -40,14 +46,12 @@ public class InsideRelationsTree {
         return nextRootTraceMethod.isEmpty();
     }
 
-    public List<Relation> getAllInsideRelationsInATree() {
+    public List<Relation> getAllOutsideRelationsInATree() {
         TraceMethod[] traceMethods = traceMethodsInRelation.toArray(new TraceMethod[0]);
         List<Relation> relations = new ArrayList<>();
         int topNodeInTree = 0;
         for (int i = 0; i < traceMethods.length; i++ ) {
             TraceMethod traceMethod = traceMethods[i];
-
-            // Ignore test methods. This is done by skipping these
             if (traceMethods[i].isTestMethod()) {
                 ++topNodeInTree;
             }
@@ -69,12 +73,5 @@ public class InsideRelationsTree {
         return relations;
     }
 
-    /**
-     * This method prints all methods in the relation
-     */
-    public void print() {
-        for (TraceMethod traceMethod : traceMethodsInRelation) {
-            log.info(traceMethod);
-        }
-    }
+
 }

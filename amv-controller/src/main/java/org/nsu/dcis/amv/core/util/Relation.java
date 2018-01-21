@@ -5,19 +5,19 @@ import org.apache.log4j.Logger;
 /**
  * Created by jorgej2 on 12/10/2017.
  */
-public class InsideRelation {
+public class Relation {
     private TraceMethod context;
     private TraceMethod firstPart;
     private TraceMethod secondPart;
 
     private Logger log = Logger.getLogger(getClass().getName());
 
-    public InsideRelation(TraceMethod firstPart, TraceMethod secondPart) {
+    public Relation(TraceMethod firstPart, TraceMethod secondPart) {
         this.firstPart = firstPart;
         this.secondPart = secondPart;
     }
 
-    public InsideRelation(TraceMethod context, TraceMethod firstPart, TraceMethod secondPart) {
+    public Relation(TraceMethod context, TraceMethod firstPart, TraceMethod secondPart) {
         this.context = context;
         this.firstPart = firstPart;
         this.secondPart = secondPart;
@@ -49,7 +49,7 @@ public class InsideRelation {
 
     @Override
     public String toString() {
-        return "\n\n" + "InsideRelation{" +
+        return "\n\n" + "Relation{" +
                 "\n" + "context='" + context + '\'' + "\n" +
                ", firstPart='" + firstPart + '\'' + "\n" +
                ", secondPart='" + secondPart + '\'' +
@@ -86,17 +86,17 @@ public class InsideRelation {
         return secondPartLine.substring(startPos + 9, endPos + 1);
     }
 
-    public boolean equals(InsideRelation insideRelation) {
-        if (this.getFirstMethod().equals(insideRelation.getFirstMethod()) &&
-            this.getSecondMethod().equals(insideRelation.getSecondMethod())) {
+    public boolean equals(Relation relation) {
+        if (this.getFirstMethod().equals(relation.getFirstMethod()) &&
+            this.getSecondMethod().equals(relation.getSecondMethod())) {
             return true;
         }
         return false;
     }
 
-    public boolean equalContext(InsideRelation insideRelation) {
-        if (this.getContextMethod() != null && insideRelation.getContextMethod() != null) {
-            if (this.getContextMethod().equals(insideRelation.getContextMethod())) {
+    public boolean equalContext(Relation relation) {
+        if (this.getContextMethod() != null && relation.getContextMethod() != null) {
+            if (this.getContextMethod().equals(relation.getContextMethod())) {
                 return true;
             } else {
                 return false;

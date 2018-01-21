@@ -35,10 +35,60 @@ public class ExecutionTraceServiceTest {
     private String EXECUTION_TRACE_LOG_FILE_WITH_ONE_RELATION = "C:/log/method_execution_trace_WITH_ONE_LINE_FOR_TESTING_PURPOSE.log";
     private String METHOD_EXECUTION_RELATIONS_FILE = "C:/log/method_execution_relations.log";
 
+    // Outside before  relations are those where: (1) (a) -> (b), (2) (a) and (b) are at the same level
+    /**
+     * DEVELOPER NOTE:
+     * This is the main test method for getting outside before relations. These are relations on the form
+     * where: (1) (a) -> (b), (2) (a) and (b) are at the same level. The context may be at a lover level
+     * or it may be at the same level
+     */
+    @Test
+    public void getOutsideBeforeRelationsWithDifferentCallingContexts() throws Exception {
+        BufferedReader executionTraceLogFileReader = fileUtil.openFileForReadingLines(FULL_EXECUTION_TRACE_LOG_FILE);
+        List<Relation> outsideBeforeRelationList = executionTraceService.getOutsideBeforeRelations(executionTraceLogFileReader);
+        fileUtil.closeFileForReadingLines(executionTraceLogFileReader);
+
+        Set<Relation> outsideBeforeRelationSet = new HashSet<Relation>(outsideBeforeRelationList);
+
+        Map<Integer, Set<Relation>> insideRelationsWithMultipleContexts = executionTraceService.getInsideRelationsWithMultipleContexts(outsideBeforeRelationSet);
+
+        log.info("*******************************************************");
+        log.info("***  Start listing relations with multiple contexts ***");
+        log.info("*******************************************************");
+        Set<Integer> keys = insideRelationsWithMultipleContexts.keySet();
+        for (Integer key : keys) {
+            Set<Relation> relation = insideRelationsWithMultipleContexts.get(key);
+            log.info("*******************************************************");
+            log.info(relation);
+        }
+        log.info("*******************************************************");
+
+    }
+
+    /**
+     * DEVELOPER NOTE:
+     * This is the main test method for getting inside relations. This is working correctly and is
+     * ready to be added to the production code.
+     */
+    @Test
+    public void getInsideRelationsWithDifferentCallingContextsTest() throws Exception {
+        BufferedReader executionTraceLogFileReader = fileUtil.openFileForReadingLines(FULL_EXECUTION_TRACE_LOG_FILE);
+        Set<Relation> relationSet = executionTraceService.getInsideRelations(executionTraceLogFileReader);
+        Map<Integer, Set<Relation>> insideRelationsWithMultipleContexts = executionTraceService.getInsideRelationsWithMultipleContexts(relationSet);
+
+        Set<Integer> keys = insideRelationsWithMultipleContexts.keySet();
+        for (Integer key : keys) {
+            Set<Relation> relation = insideRelationsWithMultipleContexts.get(key);
+            log.info("*******************************************************");
+            log.info(relation);
+        }
+        log.info("*******************************************************");
+    }
+
     @Test
     public void getOutsideRelationWithDifferentCallingContextsTest() throws Exception {
         BufferedReader executionTraceLogFileReader = fileUtil.openFileForReadingLines(FULL_EXECUTION_TRACE_LOG_FILE);
-        Set<InsideRelation> insideRelationSet = executionTraceService.getOutsideRelations(executionTraceLogFileReader);
+        Set<OutsideRelation> outsideRelation = executionTraceService.getOutsideRelations(executionTraceLogFileReader);
     }
 
     @Test
@@ -47,45 +97,23 @@ public class ExecutionTraceServiceTest {
         executionTraceService.getOutsideRelationsTree(executionTraceLogFileReader);
     }
 
-    /**
-     * DEVELOPER NOTE:
-     * This is the main test method for getting inside relations. This is working correctly and is
-     * ready to be added to the production code.
-     *
-     * @throws Exception
-     */
-    @Test
-    public void getInsideRelationsWithDifferentCallingContextsTest() throws Exception {
-        BufferedReader executionTraceLogFileReader = fileUtil.openFileForReadingLines(FULL_EXECUTION_TRACE_LOG_FILE);
-        Set<InsideRelation> insideRelationSet = executionTraceService.getInsideRelations(executionTraceLogFileReader);
-        Map<Integer, Set<InsideRelation>> insideRelationsWithMultipleContexts = executionTraceService.getInsideRelationsWithMultipleContexts(insideRelationSet);
-
-        Set<Integer> keys = insideRelationsWithMultipleContexts.keySet();
-        for (Integer key : keys) {
-            Set<InsideRelation> insideRelation = insideRelationsWithMultipleContexts.get(key);
-            log.info("*******************************************************");
-            log.info(insideRelation);
-        }
-        log.info("*******************************************************");
-    }
-
     @Test
     public void getAllRelationsWithCallingContext() throws Exception {
         BufferedReader executionTraceLogFileReader = fileUtil.openFileForReadingLines(FULL_EXECUTION_TRACE_LOG_FILE);
-        List<Pair<InsideRelation, InsideRelation>> insideRelationsPairs = executionTraceService.getAllInsideRelations(executionTraceLogFileReader);
+        List<Pair<Relation, Relation>> insideRelationsPairs = executionTraceService.getAllInsideRelations(executionTraceLogFileReader);
         //executionTraceService.writeInsideRelations(insideRelationsPairs, METHOD_EXECUTION_RELATIONS_FILE);
 
-        Set<InsideRelation> insideRelationSet = executionTraceService.getSetOfInstanceRelations(insideRelationsPairs);
+        Set<Relation> relationSet = executionTraceService.getSetOfInstanceRelations(insideRelationsPairs);
 
-//        for (InsideRelation insideRelation: insideRelationSet) {
+//        for (Relation insideRelation: relationSet) {
 //            log.info(insideRelation);
 //        }
 
-        Map<Integer, Set<InsideRelation>> instanceRelationsWithDifferentContext = executionTraceService.getInstanceRelationsWithDifferentContext(insideRelationSet);
+        Map<Integer, Set<Relation>> instanceRelationsWithDifferentContext = executionTraceService.getInstanceRelationsWithDifferentContext(relationSet);
         Set<Integer> keys = instanceRelationsWithDifferentContext.keySet();
 
 //        for (Integer key : keys) {
-//            Set<InsideRelation> insideRelations = instanceRelationsWithDifferentContext.get(key);
+//            Set<Relation> insideRelations = instanceRelationsWithDifferentContext.get(key);
 //            //log.info("For Key *********************************************'" + key + " " + insideRelations);
 //        }
     }
@@ -96,19 +124,19 @@ public class ExecutionTraceServiceTest {
         List<InsideRelationsTree> insideRelationsTreeList = getInsideRelationsTree(executionTraceLogFileReader);
         fileUtil.closeFileForReadingLines(executionTraceLogFileReader);
 
-        List<InsideRelation> insideRelations = new ArrayList<>();
+        List<Relation> relations = new ArrayList<>();
         for (InsideRelationsTree insideRelationsTree : insideRelationsTreeList) {
-            insideRelations.addAll(insideRelationsTree.getAllInsideRelationsInATree());
+            relations.addAll(insideRelationsTree.getAllInsideRelationsInATree());
         }
-        log.info("Total number of relations: " + insideRelations.size());
+        log.info("Total number of relations: " + relations.size());
 
-        List<InsideRelation> insideRelationsWithCallingContext = new ArrayList<>();
-        for (InsideRelation insideRelation : insideRelations) {
-            if (insideRelation.hasCallingContext()) {
-                insideRelationsWithCallingContext.add(insideRelation);
+        List<Relation> relationsWithCallingContext = new ArrayList<>();
+        for (Relation relation : relations) {
+            if (relation.hasCallingContext()) {
+                relationsWithCallingContext.add(relation);
             }
         }
-        log.info("Number of relations with calling context: " + insideRelationsWithCallingContext.size());
+        log.info("Number of relations with calling context: " + relationsWithCallingContext.size());
     }
 
     @Test
@@ -117,19 +145,19 @@ public class ExecutionTraceServiceTest {
         List<InsideRelationsTree> insideRelationsTreeList = getInsideRelationsTree(executionTraceLogFileReader);
         fileUtil.closeFileForReadingLines(executionTraceLogFileReader);
 
-        List<InsideRelation> insideRelations = new ArrayList<>();
+        List<Relation> relations = new ArrayList<>();
         for (InsideRelationsTree insideRelationsTree : insideRelationsTreeList) {
-            insideRelations.addAll(insideRelationsTree.getAllInsideRelationsInATree());
+            relations.addAll(insideRelationsTree.getAllInsideRelationsInATree());
         }
-        Assert.assertEquals("Number of relations expected was 5714",5714, insideRelations.size());
+        Assert.assertEquals("Number of relations expected was 5714",5714, relations.size());
 
-        for (InsideRelation insideRelation : insideRelations) {
-            log.info(insideRelation);
+        for (Relation relation : relations) {
+            log.info(relation);
         }
 
         BufferedWriter bufferedWriter = fileUtil.openFileForWritingLines(METHOD_EXECUTION_RELATIONS_FILE);
-        for (InsideRelation insideRelation : insideRelations) {
-            fileUtil.writeLineToFile(bufferedWriter, insideRelation.toString());
+        for (Relation relation : relations) {
+            fileUtil.writeLineToFile(bufferedWriter, relation.toString());
         }
         fileUtil.closeFileWritingLines(bufferedWriter);
     }
@@ -140,11 +168,11 @@ public class ExecutionTraceServiceTest {
         List<InsideRelationsTree> insideRelationsTreeList = getInsideRelationsTree(executionTraceLogFileReader);
         fileUtil.closeFileForReadingLines(executionTraceLogFileReader);
 
-        List<InsideRelation> insideRelations = new ArrayList<>();
+        List<Relation> relations = new ArrayList<>();
         for (InsideRelationsTree insideRelationsTree : insideRelationsTreeList) {
-            insideRelations.addAll(insideRelationsTree.getAllInsideRelationsInATree());
+            relations.addAll(insideRelationsTree.getAllInsideRelationsInATree());
         }
-        Assert.assertEquals("Four relations were expected",4, insideRelations.size());
+        Assert.assertEquals("Four relations were expected",4, relations.size());
 
         for (InsideRelationsTree insideRelationsTree : insideRelationsTreeList) {
             insideRelationsTree.print();

@@ -11,6 +11,7 @@
       <module>amv-web-services</module>
       <module>amv-ui</module>
       <module>amv-controller</module>
+      <module>amv-common</module>
   </modules>
 
   <name>amv-mine</name>
