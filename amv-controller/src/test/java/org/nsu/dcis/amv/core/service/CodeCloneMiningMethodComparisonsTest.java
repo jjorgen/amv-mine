@@ -65,6 +65,12 @@ public class CodeCloneMiningMethodComparisonsTest {
         displayCloneStatistics(codeCloneMiningResult.getCodeCloneResults());
     }
 
+    // When displaying the results the following should show.
+    //    INFO [2018-01-23 09:12:31,942] [main] [CodeCloneMiningMethodComparisonsTest.java:168] - Empty:  3755091
+    //    INFO [2018-01-23 09:12:31,942] [main] [CodeCloneMiningMethodComparisonsTest.java:169] - Clone:  33
+    //    INFO [2018-01-23 09:12:31,942] [main] [CodeCloneMiningMethodComparisonsTest.java:170] - Before: 40
+    //    INFO [2018-01-23 09:12:31,942] [main] [CodeCloneMiningMethodComparisonsTest.java:171] - Around: 1
+    //    INFO [2018-01-23 09:12:31,942] [main] [CodeCloneMiningMethodComparisonsTest.java:172] - After:  5
     @Test
     public void getCodeCloningResultsForAllClasses() throws Exception {
         CodeCloneMiningResult codeCloneMiningResult =
@@ -79,7 +85,8 @@ public class CodeCloneMiningMethodComparisonsTest {
         displayAfterCandidates(codeCloneMiningResult);
         displayAroundAdviceCandidates(codeCloneMiningResult);
         displayClones(codeCloneMiningResult);
-
+        // Displays the results
+        displayCloneStatistics(codeCloneMiningResult.getCodeCloneResults());
     }
 
     private void displayClones(CodeCloneMiningResult codeCloneMiningResult) {
@@ -165,11 +172,11 @@ public class CodeCloneMiningMethodComparisonsTest {
             }
         }
 
-//        log.info("Empty:  " + emptyCount);
-//        log.info("Clone:  " + cloneCount);
-//        log.info("Before: " + beforeAdvice);
-//        log.info("Around: " + aroundAdvice);
-//        log.info("After:  " + afterAdvice);
+        log.info("Empty:  " + emptyCount);
+        log.info("Clone:  " + cloneCount);
+        log.info("Before: " + beforeAdvice);
+        log.info("Around: " + aroundAdvice);
+        log.info("After:  " + afterAdvice);
         return new CodeCloneStatistics(emptyCount, cloneCount, beforeAdvice, aroundAdvice, afterAdvice);
     }
 }
