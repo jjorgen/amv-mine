@@ -3,7 +3,6 @@ package org.nsu.dcis.amv.core.service;
 import com.github.javaparser.ast.MethodRepresentation;
 import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.extend.CompilationUnitWrapper;
-import com.sun.org.apache.xpath.internal.SourceTree;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.junit.Test;
@@ -38,33 +37,47 @@ public class CallsAtTheBeginningOfAMethodTest {
     @Test
     public void commonCallsAtTheBeginningOfAMethod() throws Exception {
         Set<String> testSet = new HashSet<>();
+        MethodWithCallAtTheBeginning methodWithCallAtTheBeginning = null;
 
-        List<MethodWithCallAtTheBeginning> methodsWithCallAtTheBeginning = new ArrayList<MethodWithCallAtTheBeginning>();
+        List<MethodWithCallAtTheBeginning> methodWithCallAtTheBeginningList = new ArrayList<MethodWithCallAtTheBeginning>();
         List<MethodRepresentation> allMethodRepresentations = getAllMethodRepresentations();
         log.info("Total number of method representations: " + allMethodRepresentations.size());
-        for (MethodRepresentation methodRepresentation : allMethodRepresentations) {
-            String nameOfMethodCalledFromMethod = getNamesOfMethodCalledFrom(methodRepresentation);
-            if (!StringUtils.isBlank(nameOfMethodCalledFromMethod)) {
-                MethodWithCallAtTheBeginning methodWithCallAtTheBeginning =
-                        new MethodWithCallAtTheBeginning(methodRepresentation, nameOfMethodCalledFromMethod);
-                if (!testSet.contains(methodWithCallAtTheBeginning.getSignature())) {
-                    testSet.add(methodWithCallAtTheBeginning.getSignature());
 
-                    methodsWithCallAtTheBeginning.add(methodWithCallAtTheBeginning);
-                    List<MethodRepresentation> methodRepresentationsForCalledMethod =
-                            getMethodRepresentationFor(nameOfMethodCalledFromMethod, allMethodRepresentations);
-
-                    if (!methodRepresentationsForCalledMethod.isEmpty()) {
-                        methodWithCallAtTheBeginning.addCalledMethodRepresentation(methodRepresentationsForCalledMethod.iterator().next());
+        for (MethodRepresentation callingMethodRepresentation : allMethodRepresentations) {
+            String methodNameAtBeginning = getNameOfMethodCalledFrom(callingMethodRepresentation);
+            if (calls(methodNameAtBeginning)) {
+                MethodRepresentation calledMethodRepresentation = getMethodRepresentationFor(methodNameAtBeginning, allMethodRepresentations);
+                if (exists(calledMethodRepresentation)) {
+                    methodWithCallAtTheBeginning = new MethodWithCallAtTheBeginning(callingMethodRepresentation, calledMethodRepresentation);
+                    if (!isDuplicate(testSet, methodWithCallAtTheBeginning)) {
+                        testSet.add(methodWithCallAtTheBeginning.getSignature());
+                        methodWithCallAtTheBeginningList.add(methodWithCallAtTheBeginning);
                     }
                 }
             }
         }
-        for (MethodWithCallAtTheBeginning methodWithCallAtTheBeginning : methodsWithCallAtTheBeginning) {
-            if (methodWithCallAtTheBeginning.hasCalledMethodRepresentation()) {
-                log.info(methodWithCallAtTheBeginning);
-            }
+        displayAllMethodsWithCallAtTheBeginning(methodWithCallAtTheBeginningList);
+    }
+
+    private boolean isDuplicate(Set<String> testSet, MethodWithCallAtTheBeginning methodWithCallAtTheBeginning) {
+        return testSet.contains(methodWithCallAtTheBeginning.getSignature());
+    }
+
+    private boolean exists(MethodRepresentation methodRepresentationForCalledMethod) {
+        return methodRepresentationForCalledMethod != null;
+    }
+
+    private void displayAllMethodsWithCallAtTheBeginning(List<MethodWithCallAtTheBeginning> methodWithCallAtTheBeginningList) {
+        for (MethodWithCallAtTheBeginning methodWithCallAtTheBeginning : methodWithCallAtTheBeginningList) {
+            log.info("******************************************************************************************************");
+            log.info(methodWithCallAtTheBeginning);
+            log.info("******************************************************************************************************");
         }
+        log.info("Total number of methods with call at beginning was: " + methodWithCallAtTheBeginningList.size());
+    }
+
+    private boolean calls(String nameOfMethodCalledFromMethod) {
+        return !StringUtils.isBlank(nameOfMethodCalledFromMethod);
     }
 
     /**
@@ -75,35 +88,50 @@ public class CallsAtTheBeginningOfAMethodTest {
      * @param allMethodRepresentations
      * @return List of method representations
      */
-    private List<MethodRepresentation> getMethodRepresentationFor(String method,
-                                                                  List<MethodRepresentation> allMethodRepresentations) {
-        List<MethodRepresentation> methodRepresentationsForCalledMethod = new ArrayList<>();
+    private MethodRepresentation getMethodRepresentationFor(String method, List<MethodRepresentation> allMethodRepresentations) {
+        MethodRepresentation methodRepresentationForCalledMethod =  null;
         for (MethodRepresentation methodRepresentation : allMethodRepresentations) {
             if (methodRepresentation.getMethodName().equals(method)) {
-                if (methodRepresentationsForCalledMethod.size() == 0) {
-                    methodRepresentationsForCalledMethod.add(methodRepresentation);
+                if (methodRepresentationForCalledMethod == null) {
+                    methodRepresentationForCalledMethod = methodRepresentation;
+                } else if (methodRepresentationForCalledMethod.getFullMethodName().equals(methodRepresentation.getFullMethodName())) {
+                    // Duplicate method found, ignore this.
+                    log.info("Duplicate method found");
+                    log.info("First found method:  " + methodRepresentationForCalledMethod.getFullMethodName());
+                    log.info("Second found method: " + methodRepresentation.getFullMethodName());
+
                 } else {
-                    log.info("*******************************************");
-                    log.info("*******************************************");
-                    log.info(methodRepresentation.getFullMethodName());
-                    log.info("*******************************************");
-                    log.info("*******************************************");
-                    return new ArrayList<MethodRepresentation>();
+                    log.info("Ambiguity");
+                    log.info("First found method:  " + methodRepresentationForCalledMethod.getFullMethodName());
+                    log.info("Second found method: " + methodRepresentation.getFullMethodName());
+
+//                    log.info("*******************************************");
+//                    log.info("*******************************************");
+//                    log.info(methodRepresentation.getFullMethodName());
+//                    log.info("*******************************************");
+//                    log.info("*******************************************");
+                    return null;
                 }
             }
         }
-        return methodRepresentationsForCalledMethod;
+        return methodRepresentationForCalledMethod;
     }
 
-    private String getNamesOfMethodCalledFrom(MethodRepresentation methodRepresentation) {
-        String nameOfMethodCalledFromMethodAsString= null;
+    private String getNameOfMethodCalledFrom(MethodRepresentation methodRepresentation) {
+        String nameOfMethodCalledFromMethodAsString = null;
         CompilationUnitWrapper compilationUnitWrapper = new CompilationUnitWrapper(methodRepresentation.getFilePath());
+
+        if (methodRepresentation.getFilePath().equals("C:\\work\\0_NSU\\CH\\ifa\\draw\\util\\UndoableTool.java") &&
+            methodRepresentation.getFullMethodName().equals("UndoableTool.toolDeactivated")) {
+            System.out.println("found");
+        }
+
         List<Statement> namesOfMethodsCalledFromMethod =
-                compilationUnitWrapper.getNamesOfMethodsCalledFromMethod(methodRepresentation.getMethodName(),CompilationUnitWrapper.METHOD_AT_BEGINNING);
+            compilationUnitWrapper.getNamesOfMethodsCalledFromMethod(methodRepresentation.getMethodName(),CompilationUnitWrapper.METHOD_AT_BEGINNING);
 
         for (Statement statement : namesOfMethodsCalledFromMethod) {
             String methodNameAsString = getMethodNameAsStringFor(statement);
-            if (!StringUtils.isBlank(methodNameAsString)) {
+            if (calls(methodNameAsString)) {
                 nameOfMethodCalledFromMethodAsString = methodNameAsString;
             }
         }
@@ -115,7 +143,8 @@ public class CallsAtTheBeginningOfAMethodTest {
         if (statementAsString.startsWith("//")) {
             return "";
         } else {
-            int periodPos = statementAsString.indexOf(".");
+            int periodPos = statementAsString.lastIndexOf(".");
+//            int periodPos = statementAsString.indexOf(".");
             if (!(periodPos > 0)) {
                 return "";
             } else {
@@ -146,7 +175,7 @@ public class CallsAtTheBeginningOfAMethodTest {
                 firstClone.getMethodPair().getFirst().getMethodName(), CompilationUnitWrapper.ALL_METHODS);
         for (Statement statement : namesOfMethodsCalledFromMethod) {
             String methodNameAsString = getMethodNameAsStringFor(statement);
-            if (!StringUtils.isBlank(methodNameAsString)) {
+            if (calls(methodNameAsString)) {
                 namesOfMethodsCalledFromMethodAsString.add(methodNameAsString);
             }
         }
