@@ -30,7 +30,8 @@
         <property name="jhotdrawSourceRoot" value="${jhotdraw.source.root}"/>
         <property name="jhotdrawExcludedDirectoryList" value="${jhotdraw.excluded.directory.list}"/>
         <property name="jhotdrawIncludeFileExtensions" value="${jhotdraw.include.file.extensions}"/>
-
+        <property name="topOfMethodTokenThreshold" value="${top.of.method.token.threshold}"/>
+        <property name="bottomOfMethodTokenThreshold" value="${bottom.of.method.token.threshold}"/>
     </bean>
 
     <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">

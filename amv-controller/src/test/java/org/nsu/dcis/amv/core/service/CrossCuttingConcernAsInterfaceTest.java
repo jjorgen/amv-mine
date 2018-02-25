@@ -57,9 +57,10 @@ public class CrossCuttingConcernAsInterfaceTest {
      *             is present in an ancestor interface. The CompilationUnitWrapper will have this
      *             information since it was created from the full path of the interface.
      *       (5.3) Also, (5.2) is best implemented as a recursive method since many interfaces may
-     *             be present, each with their own inheritance hierarchy.
-     *
-     * @throws Exception
+     *             be present, each with their own inheritance hierarchy. This can also be implemented
+     *             using a stack. The purpose of this implementation is to find the exhaustive list of
+     *             all interfaces that is implemented by the enclosing class. Once this exhaustive list
+     *             has been created then these are searched for the methods in the two classes.
      */
 
 
@@ -72,8 +73,8 @@ public class CrossCuttingConcernAsInterfaceTest {
     //            for each interface look for match of implementing method in the interface
     //
     //	1. after a particular interface has been searched the look for ancester interface if this exists
-    //	2. search the ancester interface for the method
-    //	3. repeat (2) as long as there are ancester interfaces to search
+    //	2. search the ancestor interface for the method
+    //	3. repeat (2) as long as there are ancestor interfaces to search
     //
     //    stop when an interface that implements the method has been found
     //	if the interface can not be instantiated with CompilationUnit as wiil be the case with EventListener then stop
@@ -116,18 +117,6 @@ public class CrossCuttingConcernAsInterfaceTest {
                     NodeList<ClassOrInterfaceType> extendingInterfaces = ((ClassOrInterfaceDeclaration) type).getExtends();
                     for (ClassOrInterfaceType extendingInterface : extendingInterfaces) {
                         System.out.println("The extending interface is: " + extendingInterface);
-
-//                        NodeList<TypeDeclaration<?>> types = extendingInterface.getTypes();
-//                        for (TypeDeclaration type : types) {
-//                            if (type instanceof ClassOrInterfaceDeclaration && !((ClassOrInterfaceDeclaration) type).isInterface()) {
-//                                methodImplements = ((ClassOrInterfaceDeclaration) type).getImplements();
-//                            }
-//                        }
-//
-//
-//
-//                        methodImplements = extendingInterface.getImplements();
-//
                     }
                 }
             }

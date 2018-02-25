@@ -89,18 +89,6 @@ public class CodeCloneMiningMethodComparisonsTest {
         displayCloneStatistics(codeCloneMiningResult.getCodeCloneResults());
     }
 
-    private void displayClones(CodeCloneMiningResult codeCloneMiningResult) {
-        List<CodeCloneResult> clones = codeCloneMiningResult.getClone();
-        log.info("**********************************************************************************");
-        log.info("The Clone Count was: " + codeCloneMiningResult.getClone().size());
-        log.info("**********************************************************************************");
-        for (CodeCloneResult clone : clones) {
-            log.info("**********************************************************************************");
-            clone.display();
-            log.info("**********************************************************************************");
-        }
-    }
-
     private void displayBeforeAdviceCandidates(CodeCloneMiningResult codeCloneMiningResult) {
         List<CodeCloneResult> beforeAdviceCandidates = codeCloneMiningResult.getBeforeAdviceCandidates();
         log.info("**********************************************************************************");
@@ -133,6 +121,18 @@ public class CodeCloneMiningMethodComparisonsTest {
         for (CodeCloneResult codeCloneResult : aroundAdviceCandidates) {
             log.info("**********************************************************************************");
             codeCloneResult.display();
+            log.info("**********************************************************************************");
+        }
+    }
+
+    private void displayClones(CodeCloneMiningResult codeCloneMiningResult) {
+        List<CodeCloneResult> clones = codeCloneMiningResult.getClone();
+        log.info("**********************************************************************************");
+        log.info("The Clone Count was: " + codeCloneMiningResult.getClone().size());
+        log.info("**********************************************************************************");
+        for (CodeCloneResult clone : clones) {
+            log.info("**********************************************************************************");
+            clone.display();
             log.info("**********************************************************************************");
         }
     }

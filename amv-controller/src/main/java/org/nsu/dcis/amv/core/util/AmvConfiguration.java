@@ -13,6 +13,8 @@ public class AmvConfiguration {
     private String jhotdrawSourceRoot;
     private String jhotdrawExcludedDirectoryList;
     private String jhotdrawIncludeFileExtensions;
+    private String topOfMethodTokenThreshold;
+    private String bottomOfMethodTokenThreshold;
 
     public void setJhotdrawSourceRoot(String jhotdrawSourceRoot) {
         this.jhotdrawSourceRoot = jhotdrawSourceRoot;
@@ -50,5 +52,21 @@ public class AmvConfiguration {
             extensionSet.add((String)st.nextElement());
         }
         return extensionSet;
+    }
+
+    public void setTopOfMethodTokenThreshold(String topOfMethodTokenThreshold) {
+        this.topOfMethodTokenThreshold = topOfMethodTokenThreshold;
+    }
+
+    public String getTopOfMethodTokenThreshold() {
+        return topOfMethodTokenThreshold;
+    }
+
+    public void setBottomOfMethodTokenThreshold(String bottomOfMethodTokenThreshold) {
+        this.bottomOfMethodTokenThreshold = bottomOfMethodTokenThreshold;
+    }
+
+    public String getBottomOfMethodTokenThreshold() {
+        return bottomOfMethodTokenThreshold;
     }
 }

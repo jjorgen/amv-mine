@@ -58,6 +58,12 @@ public class CodeCloneMiningService {
         return codeCloneMiningResult;
     }
 
+    public List<MethodRepresentation> getAllMethodRepresentations(String rootDir, List<String> excludedDirectoryList, Set<String> fileExtensions) {
+        FileScanResult fileScanResult = fileScanningService.scan(rootDir, excludedDirectoryList, fileExtensions);
+        return methodRepresentationService.getMethodRepresentations(fileScanResult);
+    }
+
+
     private CodeCloneStatistics getCodeCloneStatistics(List<CodeCloneResult> codeCloneResults) {
         int emptyCount = 0;
         int cloneCount = 0;

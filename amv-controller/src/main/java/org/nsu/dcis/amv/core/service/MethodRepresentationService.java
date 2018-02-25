@@ -1,6 +1,7 @@
 package org.nsu.dcis.amv.core.service;
 
 import com.github.javaparser.ast.MethodRepresentation;
+import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.extend.CompilationUnitWrapper;
 import org.apache.log4j.Logger;
 import org.nsu.dcis.amv.core.domain.FileScanResult;
@@ -25,6 +26,8 @@ public class MethodRepresentationService {
         for (String filePath : fileScanResult.getFileList()) {
             compilationUnitWrapper = new CompilationUnitWrapper(filePath);
             methodRepresentations.addAll(compilationUnitWrapper.getMethodRepresentations());
+//            List<Statement> zx = compilationUnitWrapper.getNamesOfMethodsCalledFromMethod("zx");
+
 //            for (MethodRepresentation methodRepresentation : methodRepresentations) {
 //                log.info("****** File Path: " + methodRepresentation.getFilePath());
 //                log.info("****** Method Name: " + methodRepresentation.getMethodName());
