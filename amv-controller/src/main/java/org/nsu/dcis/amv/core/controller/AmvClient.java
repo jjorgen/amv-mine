@@ -1,5 +1,6 @@
 package org.nsu.dcis.amv.core.controller;
 
+import org.nsu.dcis.amv.common.AspectMiningRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
@@ -19,6 +20,10 @@ public class AmvClient {
     public static final String ASPECT_MINING_USE_CASE = "AspectMining";
     private static AmvClient amvClient = new AmvClient();
     private Logger log = Logger.getLogger(getClass().getName());
+
+    public void getAspectMiningResults(AspectMiningRequest aspectMiningRequest) {
+        log.info(aspectMiningRequest);
+    }
 
     public void getAspectMiningResults(Map<String, String> aspectMineMap) {
         log.info("Dispatching: " + aspectMineMap);
