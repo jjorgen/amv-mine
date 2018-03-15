@@ -4,43 +4,24 @@ import com.github.javaparser.ast.MethodRepresentation;
 import com.github.javaparser.extend.CompilationUnitWrapper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.nsu.dcis.amv.core.instrumentation.AmvConfigurationInstrumentation;
 import org.nsu.dcis.amv.core.util.MethodWithCall;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 /**
- * Created by jorgej2 on 3/4/2018.
+ * Created by jorgej2 on 3/14/2018.
  */
-@ContextConfiguration(locations = "classpath:applicationContext.xml")
-@RunWith(SpringJUnit4ClassRunner.class)
-public class CallsAtTheEndOfAMethodTest {
+@Service
+public class CallsAtTheEndOfMethodService {
 
     @Autowired
-    AmvConfigurationInstrumentation amvConfigurationInstrumentation;
-
-    @Autowired
-    private CodeCloneMiningService codeCloneMiningService;
-
-    @Autowired
-    CallsAtTheEndOfMethodService callsAtTheEndOfMethodService;
+    private CommonMiningService commonMiningService;
 
     private Logger log = Logger.getLogger(getClass().getName());
 
-    @Test
-    public void commonCallsAtTheEndOfAMethod2() throws Exception {
-        callsAtTheEndOfMethodService.commonCallsAtTheEndOfAMethod();
-    }
-
-    //    commonCallsAtTheEndOfAMethod
-
-    @Test
-    public void commonCallsAtTheEndOfAMethod() throws Exception {
+    public int commonCallsAtTheEndOfAMethod() {
         Set<String> testSet = new HashSet<>();
         MethodWithCall methodWithCall = null;
         List<MethodRepresentation> allMethodRepresentations = getAllMethodRepresentations();
@@ -60,12 +41,12 @@ public class CallsAtTheEndOfAMethodTest {
             }
         }
 //        displayAllMethodsWithCallAtTheBeginning(methodWithCallList);
-        getCrossCuttingConcernsForSetsOfCalledMethods(methodWithCallList);
+        return getCrossCuttingConcernsForSetsOfCalledMethods(methodWithCallList);
 
 //        getCrossCuttingConcernCandidatesFor(methodWithCallList);
     }
 
-    private void getCrossCuttingConcernsForSetsOfCalledMethods(List<MethodWithCall> methodWithCallList) {
+    private int getCrossCuttingConcernsForSetsOfCalledMethods(List<MethodWithCall> methodWithCallList) {
         Set<MethodWithCall> methodSet = null;
         Map<String, Set> methodSetMap = new HashMap<>();
         int idx = 0;
@@ -91,6 +72,7 @@ public class CallsAtTheEndOfAMethodTest {
             log.info(methodSetMap.get(key));
         }
         log.info("Number of sets of methods called at end was: " + keys.size());
+        return keys.size();
     }
 
 
@@ -165,8 +147,12 @@ public class CallsAtTheEndOfAMethodTest {
         return nameOfLastMethodCalledFromMethod;
     }
     public List<MethodRepresentation> getAllMethodRepresentations() {
-        return codeCloneMiningService.getAllMethodRepresentations(amvConfigurationInstrumentation.getRootDir(),
-                amvConfigurationInstrumentation.getExcludedDirectoryList(),
-                amvConfigurationInstrumentation.getFileExtensions());
+        return commonMiningService.getAllMethodRepresentations();
+
+//        return commonMiningService.getAllMethodRepresentations(amvConfigurationInstrumentation.getRootDir(),
+//                amvConfigurationInstrumentation.getExcludedDirectoryList(),
+//                amvConfigurationInstrumentation.getFileExtensions());
     }
+
+
 }

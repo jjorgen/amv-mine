@@ -21,8 +21,9 @@ public class MethodRepresentationService {
     private Logger log = Logger.getLogger(getClass().getName());
 
     public List<MethodRepresentation> getMethodRepresentations(FileScanResult fileScanResult) {
-        List<MethodRepresentation> methodRepresentations = new ArrayList<>();
 
+        List<MethodRepresentation> methodRepresentations = new ArrayList<>();
+        log.info("methodRepresentations");
         for (String filePath : fileScanResult.getFileList()) {
             compilationUnitWrapper = new CompilationUnitWrapper(filePath);
             methodRepresentations.addAll(compilationUnitWrapper.getMethodRepresentations());

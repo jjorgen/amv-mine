@@ -47,10 +47,11 @@ public class AmvConfiguration {
     }
     public Set<String> getFileExtensions() {
         Set<String> extensionSet = new HashSet<String>();
-        StringTokenizer st = new StringTokenizer(jhotdrawIncludeFileExtensions, ",");
-        while (st.hasMoreElements()) {
-            extensionSet.add((String)st.nextElement());
-        }
+        extensionSet.add("JAVA");
+//        StringTokenizer st = new StringTokenizer(jhotdrawIncludeFileExtensions, ",");
+//        while (st.hasMoreElements()) {
+//            extensionSet.add((String)st.nextElement());
+//        }
         return extensionSet;
     }
 

@@ -5,24 +5,20 @@ import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.extend.CompilationUnitWrapper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.nsu.dcis.amv.core.domain.CodeCloneResult;
 import org.nsu.dcis.amv.core.instrumentation.AmvConfigurationInstrumentation;
 import org.nsu.dcis.amv.core.util.MethodWithCall;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Created by jorgej2 on 2/19/2018.
+ * Created by jorgej2 on 3/13/2018.
  */
-@ContextConfiguration(locations = "classpath:applicationContext.xml")
-@RunWith(SpringJUnit4ClassRunner.class)
-public class CallsAtTheBeginningOfAMethodTest {
+@Service
+public class CallsAtTheBeginningOfMethodService {
 
     @Autowired
     AmvConfigurationInstrumentation amvConfigurationInstrumentation;
@@ -31,26 +27,22 @@ public class CallsAtTheBeginningOfAMethodTest {
     private CodeCloneMiningService codeCloneMiningService;
 
     @Autowired
-    CallsAtTheBeginningOfMethodService callsAtTheBeginningOfMethodService;
+    private CommonMiningService commonMiningService;
 
     private Logger log = Logger.getLogger(getClass().getName());
 
-    @Test
-    public void commonCallsAtTheBeginningOfAMethod2() throws Exception {
-        int crossCuttingConcernCount = callsAtTheBeginningOfMethodService.commonCallsAtTheBeginningOfAMethod();
-        log.info("*** Number of sets of method calls at the beginning calling in to common method: " + crossCuttingConcernCount);
-    }
-
-    @Test
-    public void commonCallsAtTheBeginningOfAMethod() throws Exception {
+    public int commonCallsAtTheBeginningOfAMethod() {
+        log.info("commonCallsAtTheBeginningOfAMethod 1");
         Set<String> testSet = new HashSet<>();
         MethodWithCall methodWithCall = null;
 
+        log.info("commonCallsAtTheBeginningOfAMethod 2");
         List<MethodWithCall> methodWithCallList = new ArrayList<MethodWithCall>();
-        List<MethodRepresentation> allMethodRepresentations = getAllMethodRepresentations();
-//        log.info("Total number of method representations: " + allMethodRepresentations.size());
+        List<MethodRepresentation> allMethodRepresentations = commonMiningService.getAllMethodRepresentations();
+        log.info("Total number of method representations: " + allMethodRepresentations.size());
 
         for (MethodRepresentation callingMethodRepresentation : allMethodRepresentations) {
+//            log.info("callingMethodRepresentation: " + callingMethodRepresentation);
             String methodNameAtBeginning = getNameOfMethodCalledFrom(callingMethodRepresentation);
             if (calls(methodNameAtBeginning)) {
                 MethodRepresentation calledMethodRepresentation = getMethodRepresentationFor(methodNameAtBeginning, allMethodRepresentations);
@@ -63,13 +55,13 @@ public class CallsAtTheBeginningOfAMethodTest {
                 }
             }
         }
-//        displayAllMethodsWithCallAtTheBeginning(methodWithCallList);
-        getCrossCuttingConcernsForSetsOfCalledMethods(methodWithCallList);
+        displayAllMethodsWithCallAtTheBeginning(methodWithCallList);
+        return getCrossCuttingConcernsForSetsOfCalledMethods(methodWithCallList);
 
 //        getCrossCuttingConcernCandidatesFor(methodWithCallList);
     }
 
-    private void getCrossCuttingConcernsForSetsOfCalledMethods(List<MethodWithCall> methodWithCallList) {
+    private int getCrossCuttingConcernsForSetsOfCalledMethods(List<MethodWithCall> methodWithCallList) {
         Set<MethodWithCall> methodSet = null;
         Map<String, Set> methodSetMap = new HashMap<>();
         int idx = 0;
@@ -87,13 +79,14 @@ public class CallsAtTheBeginningOfAMethodTest {
                 methodNewSet.add(method);
                 methodSetMap.put(method.getCalledMethodRepresentationId(), methodNewSet);
             }
-            if (idx > 9) break;
+//            if (idx > 9) break;
         }
         Set<String> keys = methodSetMap.keySet();
         for (String key : keys) {
             log.info("***************************");
             log.info(methodSetMap.get(key));
         }
+        return keys.size();
     }
 
     private void getCrossCuttingConcernCandidatesFor(List<MethodWithCall> methodWithCallList) {
@@ -118,16 +111,16 @@ public class CallsAtTheBeginningOfAMethodTest {
                                 } else {
                                     methodWithCallSet.add(methodWithCallCopy);
 
-    //                                boolean alreadyAdded = false;
-    //                                methodWithCallCopySet = new HashSet<>(methodWithCallSet);
-    //                                for (MethodWithCall callAtTheBeginning : methodWithCallCopySet) {
-    //                                    if (callAtTheBeginning.getCallingMethodRepresentationId().equals(methodWithCallCopy.getCallingMethodRepresentationId())) {
-    //                                        alreadyAdded = true;
-    //                                    }
-    //                                }
-    //                                if (!alreadyAdded) {
-    //                                    methodWithCallSet.add(methodWithCallCopy);
-    //                                }
+                                    //                                boolean alreadyAdded = false;
+                                    //                                methodWithCallCopySet = new HashSet<>(methodWithCallSet);
+                                    //                                for (MethodWithCall callAtTheBeginning : methodWithCallCopySet) {
+                                    //                                    if (callAtTheBeginning.getCallingMethodRepresentationId().equals(methodWithCallCopy.getCallingMethodRepresentationId())) {
+                                    //                                        alreadyAdded = true;
+                                    //                                    }
+                                    //                                }
+                                    //                                if (!alreadyAdded) {
+                                    //                                    methodWithCallSet.add(methodWithCallCopy);
+                                    //                                }
                                 }
                             }
                         }
@@ -202,14 +195,14 @@ public class CallsAtTheBeginningOfAMethodTest {
                 if (methodRepresentationForCalledMethod == null) {
                     methodRepresentationForCalledMethod = methodRepresentation;
 
-                // The same method representation that has already been found was found again. Ignore this
+                    // The same method representation that has already been found was found again. Ignore this
                 } else if (methodRepresentationForCalledMethod.getFullMethodName().equals(methodRepresentation.getFullMethodName())) {
 //                    log.info("Duplicate method found");
 //                    log.info("First found method:  " + methodRepresentationForCalledMethod.getFullMethodName());
 //                    log.info("Second found method: " + methodRepresentation.getFullMethodName());
 
-                // More than one method representation was found for the method. This represents ambiguity. Ambiguity is
-                // not accepted and the returning MethodRepresentation is therefore set to null.
+                    // More than one method representation was found for the method. This represents ambiguity. Ambiguity is
+                    // not accepted and the returning MethodRepresentation is therefore set to null.
                 } else {
 //                    log.info("Ambiguity");
 //                    log.info("First found method:  " + methodRepresentationForCalledMethod.getFullMethodName());
@@ -232,11 +225,11 @@ public class CallsAtTheBeginningOfAMethodTest {
         CompilationUnitWrapper compilationUnitWrapper = new CompilationUnitWrapper(methodRepresentation.getFilePath());
 
         if (methodRepresentation.getFilePath().equals("C:\\work\\0_NSU\\CH\\ifa\\draw\\util\\UndoableTool.java") &&
-            methodRepresentation.getFullMethodName().equals("UndoableTool.toolDeactivated")) {
+                methodRepresentation.getFullMethodName().equals("UndoableTool.toolDeactivated")) {
         }
 
         List<Statement> namesOfMethodsCalledFromMethod =
-            compilationUnitWrapper.getNamesOfMethodsCalledFromMethod(methodRepresentation.getMethodName(),CompilationUnitWrapper.METHOD_AT_BEGINNING);
+                compilationUnitWrapper.getNamesOfMethodsCalledFromMethod(methodRepresentation.getMethodName(),CompilationUnitWrapper.METHOD_AT_BEGINNING);
 
         for (Statement statement : namesOfMethodsCalledFromMethod) {
             String methodNameAsString = getMethodNameAsStringFor(statement);
@@ -272,11 +265,11 @@ public class CallsAtTheBeginningOfAMethodTest {
         }
     }
 
-    public List<MethodRepresentation> getAllMethodRepresentations() {
-        return codeCloneMiningService.getAllMethodRepresentations(amvConfigurationInstrumentation.getRootDir(),
-                amvConfigurationInstrumentation.getExcludedDirectoryList(),
-                amvConfigurationInstrumentation.getFileExtensions());
-    }
+//    public List<MethodRepresentation> getAllMethodRepresentations() {
+//        return codeCloneMiningService.getAllMethodRepresentations(amvConfigurationInstrumentation.getRootDir(),
+//                amvConfigurationInstrumentation.getExcludedDirectoryList(),
+//                amvConfigurationInstrumentation.getFileExtensions());
+//    }
 
     public List<String> getNamesOfMethodCalledFromMethod(CompilationUnitWrapper compilationUnitWrapper, CodeCloneResult firstClone) {
         List<String> namesOfMethodsCalledFromMethodAsString = new ArrayList<>();
@@ -290,4 +283,5 @@ public class CallsAtTheBeginningOfAMethodTest {
         }
         return namesOfMethodsCalledFromMethodAsString;
     }
+
 }

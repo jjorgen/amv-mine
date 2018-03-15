@@ -59,7 +59,9 @@ public class CodeCloneMiningService {
     }
 
     public List<MethodRepresentation> getAllMethodRepresentations(String rootDir, List<String> excludedDirectoryList, Set<String> fileExtensions) {
+        log.info("fileScanResult");
         FileScanResult fileScanResult = fileScanningService.scan(rootDir, excludedDirectoryList, fileExtensions);
+        log.info("after fileScanResult: " + fileScanResult.getFileList().size());
         return methodRepresentationService.getMethodRepresentations(fileScanResult);
     }
 
