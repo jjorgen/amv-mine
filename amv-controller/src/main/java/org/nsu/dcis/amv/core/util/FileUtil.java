@@ -453,7 +453,6 @@ public class FileUtil {
     }
 
     public BufferedWriter openFileForWritingLines(String execution_trace_log_file) {
-        File fout = new File("out.txt");
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(execution_trace_log_file);

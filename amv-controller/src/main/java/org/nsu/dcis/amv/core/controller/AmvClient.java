@@ -40,6 +40,9 @@ public class AmvClient {
         AspectMiningResult aspectMiningResult = new AspectMiningResult();
         List<AspectMiningRequest.AspectMiningCategory> aspectMiningCategories = aspectMiningRequest.getAspectMiningCategories();
         log.info("Aspect Mining Categories Count: " + aspectMiningCategories.size());
+
+        AspectMiningByCategory[] aspectMiningByCategories = new AspectMiningByCategory[13];
+
         for (AspectMiningRequest.AspectMiningCategory aspectMiningCategory : aspectMiningCategories) {
             log.info("AspectMiningCategory: " + aspectMiningCategory);
 
@@ -51,17 +54,16 @@ public class AmvClient {
                 log.info("Number Of Common Calls At The Beginning Of A Method: " + numberOfCommonCallsAtTheBeginningOfAMethod);
                 aspectMiningSummary = new AspectMiningSummary(100, 150, 180);
 
-                AspectMiningByCategory[] aspectMiningByCategories = new AspectMiningByCategory[2];
                 AspectMiningByCategory aspectMiningByCategory =
-                        new AspectMiningByCategory("Common Calls At The Beginning Of A Method",
+                        new AspectMiningByCategory("Calls At The Beginning Of A Method",
                                 numberOfCommonCallsAtTheBeginningOfAMethod,0,0);
                 aspectMiningByCategories[0] = aspectMiningByCategory;
 
                 int numberOfCommonCallsAtTheEndOfAMethod = callsAtTheEndOfMethodService.commonCallsAtTheEndOfAMethod();
-                log.info("Number Of Common Calls At The End Of A Method: " + numberOfCommonCallsAtTheBeginningOfAMethod);
+                log.info("Number Of Calls At The End Of A Method: " + numberOfCommonCallsAtTheBeginningOfAMethod);
 
                 aspectMiningByCategory =
-                        new AspectMiningByCategory("Common Calls At The End Of A Method",
+                        new AspectMiningByCategory("Calls At The End Of A Method",
                                 numberOfCommonCallsAtTheEndOfAMethod,0,0);
                 aspectMiningByCategories[1] = aspectMiningByCategory;
 
@@ -69,6 +71,70 @@ public class AmvClient {
             }
         }
 
+        AspectMiningByCategory aspectMiningByCategory =
+                new AspectMiningByCategory("Ordered Method Call, Inside Relation",
+                        40,0,0);
+        aspectMiningByCategories[2] = aspectMiningByCategory;
+
+        aspectMiningByCategory =
+                new AspectMiningByCategory("Ordered Method Call, Outside Relation",
+                        11,0,0);
+        aspectMiningByCategories[3] = aspectMiningByCategory;
+
+        aspectMiningByCategory =
+                new AspectMiningByCategory("Clone, Before Advice",
+                        40,0,0);
+        aspectMiningByCategories[4] = aspectMiningByCategory;
+
+        aspectMiningByCategory =
+                new AspectMiningByCategory("Clone, After Advice",
+                        5,0,0);
+        aspectMiningByCategories[5] = aspectMiningByCategory;
+
+        aspectMiningByCategory =
+                new AspectMiningByCategory("Clone, Around Advice",
+                        1,0,0);
+        aspectMiningByCategories[6] = aspectMiningByCategory;
+
+        aspectMiningByCategory =
+                new AspectMiningByCategory("Clone, Complete Clone",
+                        33,0,0);
+        aspectMiningByCategories[7] = aspectMiningByCategory;
+
+        aspectMiningByCategory =
+                new AspectMiningByCategory("Cross Cutting Concern As Interface",
+                        33,0,0);
+        aspectMiningByCategories[8] = aspectMiningByCategory;
+
+        aspectMiningByCategory =
+                new AspectMiningByCategory("Calls In Clones",
+                        33,0,0);
+        aspectMiningByCategories[9] = aspectMiningByCategory;
+
+        aspectMiningByCategory =
+                new AspectMiningByCategory("Cross Cutting Concern As Interface, Before Advice",
+                        3,0,0);
+        aspectMiningByCategories[10] = aspectMiningByCategory;
+
+        aspectMiningByCategory =
+                new AspectMiningByCategory("Cross Cutting Concern As Interface, After Advice",
+                        2,0,0);
+        aspectMiningByCategories[11] = aspectMiningByCategory;
+
+        aspectMiningByCategory =
+                new AspectMiningByCategory("Cross Cutting Concern As Interface, Around Advice",
+                        1,0,0);
+        aspectMiningByCategories[12] = aspectMiningByCategory;
+
+
+        aspectMiningSummary.setAspectMiningByCategory(aspectMiningByCategories);
+
+        int total = 0;
+        AspectMiningByCategory[] aspectMineByCategory = aspectMiningSummary.getAspectMineByCategory();
+        for (int i = 0; i < aspectMineByCategory.length; i++) {
+            total += aspectMineByCategory[i].getClusteringCount();
+        }
+        aspectMiningSummary.setClusteringTotalCount(total);
         return aspectMiningSummary;
     }
 
@@ -110,7 +176,7 @@ public class AmvClient {
         AspectMiningByCategory[] aspectMiningByCategories = new AspectMiningByCategory[1];
         AspectMiningByCategory aspectMiningByCategory;
         aspectMiningByCategory = new AspectMiningByCategory(
-                "Common Calls At The Beginning Of A Method",
+                "Calls At The Beginning Of A Method",
                 100,
                 200,
                 300

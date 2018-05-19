@@ -113,9 +113,9 @@ public class CodeCloneResult {
         MethodRepresentation compareFrom = getMethodPair().getFirst();
         MethodRepresentation compareTo = getMethodPair().getSecond();
         log.info("\nAdvice Candidate Type: " + getType() +
-        "\nFirst Method: " + compareFrom.getFullMethodName() +
+        "\nFirst Method: " + compareFrom.getFilePath()+ " " + compareFrom.getFullMethodName() +
         "\n" + compareFrom.getStringifiedWithoutComments() +
-        "\nSecond Method: " + compareTo.getFullMethodName() +
+        "\nSecond Method: " + compareTo.getFilePath()+ " " + compareFrom.getFullMethodName() +
         "\n" + compareTo.getStringifiedWithoutComments());
     }
 }

@@ -36,7 +36,7 @@ public class CallsAtTheBeginningOfMethodService {
         Set<String> testSet = new HashSet<>();
         MethodWithCall methodWithCall = null;
 
-        log.info("commonCallsAtTheBeginningOfAMethod 2");
+        log.info("callsAtTheBeginningOfAMethod 2");
         List<MethodWithCall> methodWithCallList = new ArrayList<MethodWithCall>();
         List<MethodRepresentation> allMethodRepresentations = commonMiningService.getAllMethodRepresentations();
         log.info("Total number of method representations: " + allMethodRepresentations.size());

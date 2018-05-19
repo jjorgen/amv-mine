@@ -94,8 +94,8 @@ public class CrossCuttingConcernAsInterfaceTest {
         String matchingMethodName = "getFont";
         boolean methodWasFound = false;
 
-        CompilationUnitWrapper compilationUnitWrapper = new CompilationUnitWrapper("C:/work/0_NSU/CH/ifa/draw/contrib/html/AttributeContentProducerContext.java");
-        CompilationUnit compilationUnit = compilationUnitWrapper.getCompilationUnit("C:/work/0_NSU/CH/ifa/draw/contrib/html/AttributeContentProducerContext.java");
+        CompilationUnitWrapper compilationUnitWrapper = new CompilationUnitWrapper("C:/work/0_NSU/CH/ifa/draw/contrib/html/AttributeFigureContentProducer.java");
+        CompilationUnit compilationUnit = compilationUnitWrapper.getCompilationUnit("C:/work/0_NSU/CH/ifa/draw/contrib/html/AttributeFigureContentProducer.java");
 
         List<MethodRepresentation> methodRepresentations = compilationUnitWrapper.getMethodRepresentations();
         for (MethodRepresentation methodRepresentation : methodRepresentations) {
