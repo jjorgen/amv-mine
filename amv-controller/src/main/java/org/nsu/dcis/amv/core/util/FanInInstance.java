@@ -48,7 +48,7 @@ public class FanInInstance {
         return calledMethodLine.indexOf(METHOD_AND_FAN_IN_SEPARATOR_CHARACTER);
     }
 
-    private String getCalledMethod() {
+    public String getCalledMethod() {
         return calledMethod;
     }
 

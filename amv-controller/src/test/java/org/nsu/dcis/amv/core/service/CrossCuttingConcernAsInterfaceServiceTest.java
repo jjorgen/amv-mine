@@ -8,8 +8,10 @@ import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.extend.CompilationUnitWrapper;
 import org.apache.log4j.Logger;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.nsu.dcis.amv.common.AspectMiningByCategory;
 import org.nsu.dcis.amv.core.domain.CodeCloneResult;
 import org.nsu.dcis.amv.core.exception.AspectCloneException;
 import org.nsu.dcis.amv.core.instrumentation.AmvConfigurationInstrumentation;
@@ -24,12 +26,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.junit.Assert.assertTrue;
+
 /**
  * Created by jorgej2 on 1/23/2018.
  */
 @ContextConfiguration(locations = "classpath:applicationContext.xml")
 @RunWith(SpringJUnit4ClassRunner.class)
-public class CrossCuttingConcernAsInterfaceTest {
+public class CrossCuttingConcernAsInterfaceServiceTest {
+
+    @Autowired
+    CrossCuttingConcernAsInterfaceService crossCuttingConcernAsInterfaceService;
 
     @Autowired
     AmvConfigurationInstrumentation amvConfigurationInstrumentation;
@@ -39,6 +46,47 @@ public class CrossCuttingConcernAsInterfaceTest {
 
     private static final String ROOT_DIRECTORY = "C:/WS/amvCore/src/test/java/org/nsu/dcis/amv/core/support";
     private Logger log = Logger.getLogger(getClass().getName());
+    private List<CompilationUnitWrapper> allInterfaces;
+    private CodeCloneMiningResult codeCloneMiningResult;
+
+    @Before
+    public void setUp() throws Exception {
+        codeCloneMiningResult = crossCuttingConcernAsInterfaceService.getCodeCloneMiningResult();
+        allInterfaces = crossCuttingConcernAsInterfaceService.getAllInterfaces();
+    }
+
+    @Test
+    public void getBeforeAdviceCrossCuttingConcernAsInterfaceCandidates() throws Exception {
+        AspectMiningByCategory beforeAdviceCrossCuttingConcernAsInterfaceCandidates =
+                crossCuttingConcernAsInterfaceService.getBeforeAdviceCrossCuttingConcernAsInterfaceCandidates(
+                codeCloneMiningResult.getBeforeAdviceCandidates(), allInterfaces);
+        assertTrue(beforeAdviceCrossCuttingConcernAsInterfaceCandidates.getClusteringCount() == 1);
+    }
+
+    @Test
+    public void getAfterCandidatesAsInterfaceCandidates() throws Exception {
+        AspectMiningByCategory afterAdviceCrossCuttingConcernAsInterfaceCandidates =
+                crossCuttingConcernAsInterfaceService.getAfterAdviceCrossCuttingConcernAsInterfaceCandidates(
+                        codeCloneMiningResult.getAfterAdviceCandidates(), allInterfaces);
+        log.info("Clustering count: " + afterAdviceCrossCuttingConcernAsInterfaceCandidates.getClusteringCount());
+    }
+
+//    @Test
+//    public void getAroundAdviceCandidatesAsInterfaceCandidates() throws Exception {
+//        crossCuttingConcernAsInterfaceService.getAroundAdviceCandidatesAsInterfaceCandidates(
+//                codeCloneMiningResult.getAfterAdviceCandidates(), allInterfaces);
+//    }
+
+    @Test
+    public void getClonesAsInterface() throws Exception {
+    }
+
+
+    @Test
+    public void getCrossCuttingConcerns() throws Exception {
+        List<AspectMiningByCategory> crossCuttingConcerns = crossCuttingConcernAsInterfaceService.getCrossCuttingConcerns();
+        assertTrue(!crossCuttingConcerns.isEmpty());
+    }
 
     /**
      * Developer Note:
@@ -87,8 +135,6 @@ public class CrossCuttingConcernAsInterfaceTest {
     //
     //	if an implementing interface is found then
     //            check if the two interfaces for the two methods are the same.
-
-
     @Test
     public void getImplementingInterfaceForMethodIncludingAncestorInterface() throws Exception {
         String matchingMethodName = "getFont";
@@ -121,6 +167,15 @@ public class CrossCuttingConcernAsInterfaceTest {
                 }
             }
         }
+    }
+
+    @Test
+    public void getAllInterfacesTest() throws Exception {
+        List<CompilationUnitWrapper> allInterfaces = codeCloneMiningService.getAllInterfaces(
+                amvConfigurationInstrumentation.getRootDir(),
+                amvConfigurationInstrumentation.getExcludedDirectoryList(),
+                amvConfigurationInstrumentation.getFileExtensions());
+        assertTrue("At least one interface was found", allInterfaces.size() > 0);
     }
 
     @Test
@@ -256,6 +311,7 @@ public class CrossCuttingConcernAsInterfaceTest {
 
     private void displayAroundAdviceCandidatesAsInterfaceCandidates(CodeCloneMiningResult codeCloneMiningResult) {
         int aroundAdviceCandidatesWithCommonInterface = 0;
+        List<CompilationUnitWrapper> allInterfaces = getAllInterfaces();
 
         log.info("**********************************************************************************");
         log.info("The Around Advice Count was: " + codeCloneMiningResult.getAroundAdviceCandidates().size());
@@ -308,5 +364,13 @@ public class CrossCuttingConcernAsInterfaceTest {
             throw new AspectCloneException("An error when attempting to extract interfaces for method", e);
         }
         return methodImplements;
+    }
+
+    public List<CompilationUnitWrapper> getAllInterfaces() {
+        List<CompilationUnitWrapper> allInterfaces = codeCloneMiningService.getAllInterfaces(
+                amvConfigurationInstrumentation.getRootDir(),
+                amvConfigurationInstrumentation.getExcludedDirectoryList(),
+                amvConfigurationInstrumentation.getFileExtensions());
+        return allInterfaces;
     }
 }

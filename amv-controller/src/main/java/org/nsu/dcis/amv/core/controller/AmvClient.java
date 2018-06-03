@@ -4,14 +4,16 @@ import org.nsu.dcis.amv.common.AspectMiningByCategory;
 import org.nsu.dcis.amv.common.AspectMiningRequest;
 import org.nsu.dcis.amv.common.AspectMiningResult;
 import org.nsu.dcis.amv.common.AspectMiningSummary;
-import org.nsu.dcis.amv.core.domain.AspectMiningResults;
 import org.nsu.dcis.amv.core.service.CallsAtTheBeginningOfMethodService;
 import org.nsu.dcis.amv.core.service.CallsAtTheEndOfMethodService;
+import org.nsu.dcis.amv.core.service.CrossCuttingConcernAsInterfaceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.apache.log4j.Logger;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +22,9 @@ public class AmvClient {
 
     @Autowired
     CallsAtTheBeginningOfMethodService callsAtTheBeginningOfMethodService;
+
+    @Autowired
+    CrossCuttingConcernAsInterfaceService crossCuttingConcernAsInterfaceService;
 
     @Autowired
     CallsAtTheEndOfMethodService callsAtTheEndOfMethodService;
@@ -36,20 +41,18 @@ public class AmvClient {
     private AspectMiningByCategory[] aspectMiningByCategory;
 
     public AspectMiningSummary getAspectMiningResults(AspectMiningRequest aspectMiningRequest) {
+        List<AspectMiningByCategory> aspectMiningByCategoryList = new ArrayList();
+
         AspectMiningSummary aspectMiningSummary = new AspectMiningSummary();
-        AspectMiningResult aspectMiningResult = new AspectMiningResult();
         List<AspectMiningRequest.AspectMiningCategory> aspectMiningCategories = aspectMiningRequest.getAspectMiningCategories();
         log.info("Aspect Mining Categories Count: " + aspectMiningCategories.size());
-
-        AspectMiningByCategory[] aspectMiningByCategories = new AspectMiningByCategory[13];
-
+        AspectMiningByCategory[] aspectMiningByCategories = new AspectMiningByCategory[aspectMiningCategories.size()];
         for (AspectMiningRequest.AspectMiningCategory aspectMiningCategory : aspectMiningCategories) {
-            log.info("AspectMiningCategory: " + aspectMiningCategory);
 
-            log.info("aspectMiningCategory.name() " + aspectMiningCategory.name());
-            log.info("AspectMiningRequest.AspectMiningCategory.CALLS_AT_BEGINNING_AND_END_OF_METHODS.name(): " + AspectMiningRequest.AspectMiningCategory.CALLS_AT_BEGINNING_AND_END_OF_METHODS.name());
+            if (aspectMiningCategory.name().equalsIgnoreCase(AspectMiningRequest.AspectMiningCategory.CROSS_CUTTING_CONCERN_AS_INTERFACE.name())) {
+                aspectMiningByCategoryList.addAll(crossCuttingConcernAsInterfaceService.getCrossCuttingConcerns());
+            }
             if (aspectMiningCategory.name().equalsIgnoreCase(AspectMiningRequest.AspectMiningCategory.CALLS_AT_BEGINNING_AND_END_OF_METHODS.name())) {
-                log.info("Calling: callsAtTheBeginningOfMethodService.commonCallsAtTheBeginningOfAMethod()");
                 int numberOfCommonCallsAtTheBeginningOfAMethod = callsAtTheBeginningOfMethodService.commonCallsAtTheBeginningOfAMethod();
                 log.info("Number Of Common Calls At The Beginning Of A Method: " + numberOfCommonCallsAtTheBeginningOfAMethod);
                 aspectMiningSummary = new AspectMiningSummary(100, 150, 180);
@@ -70,72 +73,81 @@ public class AmvClient {
                 aspectMiningSummary.setAspectMiningByCategory(aspectMiningByCategories);
             }
         }
-
-        AspectMiningByCategory aspectMiningByCategory =
-                new AspectMiningByCategory("Ordered Method Call, Inside Relation",
-                        40,0,0);
-        aspectMiningByCategories[2] = aspectMiningByCategory;
-
-        aspectMiningByCategory =
-                new AspectMiningByCategory("Ordered Method Call, Outside Relation",
-                        11,0,0);
-        aspectMiningByCategories[3] = aspectMiningByCategory;
-
-        aspectMiningByCategory =
-                new AspectMiningByCategory("Clone, Before Advice",
-                        40,0,0);
-        aspectMiningByCategories[4] = aspectMiningByCategory;
-
-        aspectMiningByCategory =
-                new AspectMiningByCategory("Clone, After Advice",
-                        5,0,0);
-        aspectMiningByCategories[5] = aspectMiningByCategory;
-
-        aspectMiningByCategory =
-                new AspectMiningByCategory("Clone, Around Advice",
-                        1,0,0);
-        aspectMiningByCategories[6] = aspectMiningByCategory;
-
-        aspectMiningByCategory =
-                new AspectMiningByCategory("Clone, Complete Clone",
-                        33,0,0);
-        aspectMiningByCategories[7] = aspectMiningByCategory;
-
-        aspectMiningByCategory =
-                new AspectMiningByCategory("Cross Cutting Concern As Interface",
-                        33,0,0);
-        aspectMiningByCategories[8] = aspectMiningByCategory;
-
-        aspectMiningByCategory =
-                new AspectMiningByCategory("Calls In Clones",
-                        33,0,0);
-        aspectMiningByCategories[9] = aspectMiningByCategory;
-
-        aspectMiningByCategory =
-                new AspectMiningByCategory("Cross Cutting Concern As Interface, Before Advice",
-                        3,0,0);
-        aspectMiningByCategories[10] = aspectMiningByCategory;
-
-        aspectMiningByCategory =
-                new AspectMiningByCategory("Cross Cutting Concern As Interface, After Advice",
-                        2,0,0);
-        aspectMiningByCategories[11] = aspectMiningByCategory;
-
-        aspectMiningByCategory =
-                new AspectMiningByCategory("Cross Cutting Concern As Interface, Around Advice",
-                        1,0,0);
-        aspectMiningByCategories[12] = aspectMiningByCategory;
-
-
-        aspectMiningSummary.setAspectMiningByCategory(aspectMiningByCategories);
-
-        int total = 0;
-        AspectMiningByCategory[] aspectMineByCategory = aspectMiningSummary.getAspectMineByCategory();
-        for (int i = 0; i < aspectMineByCategory.length; i++) {
-            total += aspectMineByCategory[i].getClusteringCount();
+        AspectMiningByCategory[] aspectMiningByCategoryArray = new AspectMiningByCategory[aspectMiningByCategoryList.size()];
+        Iterator<AspectMiningByCategory> aspectMiningByCategoryIterator = aspectMiningByCategoryList.iterator();
+        int idx = 0;
+        while(aspectMiningByCategoryIterator.hasNext()) {
+            aspectMiningByCategoryArray[idx++] = aspectMiningByCategoryIterator.next();
         }
-        aspectMiningSummary.setClusteringTotalCount(total);
+        aspectMiningSummary.setAspectMiningByCategory(aspectMiningByCategoryArray);
         return aspectMiningSummary;
+
+//  This code is for testing only
+//
+//        AspectMiningByCategory aspectMiningByCategory =
+//                new AspectMiningByCategory("Ordered Method Call, Inside Relation",
+//                        40,0,0);
+//        aspectMiningByCategories[2] = aspectMiningByCategory;
+//
+//        aspectMiningByCategory =
+//                new AspectMiningByCategory("Ordered Method Call, Outside Relation",
+//                        11,0,0);
+//        aspectMiningByCategories[3] = aspectMiningByCategory;
+//
+//        aspectMiningByCategory =
+//                new AspectMiningByCategory("Clone, Before Advice",
+//                        40,0,0);
+//        aspectMiningByCategories[4] = aspectMiningByCategory;
+//
+//        aspectMiningByCategory =
+//                new AspectMiningByCategory("Clone, After Advice",
+//                        5,0,0);
+//        aspectMiningByCategories[5] = aspectMiningByCategory;
+//
+//        aspectMiningByCategory =
+//                new AspectMiningByCategory("Clone, Around Advice",
+//                        1,0,0);
+//        aspectMiningByCategories[6] = aspectMiningByCategory;
+//
+//        aspectMiningByCategory =
+//                new AspectMiningByCategory("Clone, Complete Clone",
+//                        33,0,0);
+//        aspectMiningByCategories[7] = aspectMiningByCategory;
+//
+//        aspectMiningByCategory =
+//                new AspectMiningByCategory("Cross Cutting Concern As Interface",
+//                        33,0,0);
+//        aspectMiningByCategories[8] = aspectMiningByCategory;
+//
+//        aspectMiningByCategory =
+//                new AspectMiningByCategory("Calls In Clones",
+//                        33,0,0);
+//        aspectMiningByCategories[9] = aspectMiningByCategory;
+//
+//        aspectMiningByCategory =
+//                new AspectMiningByCategory("Cross Cutting Concern As Interface, Before Advice",
+//                        3,0,0);
+//        aspectMiningByCategories[10] = aspectMiningByCategory;
+//
+//        aspectMiningByCategory =
+//                new AspectMiningByCategory("Cross Cutting Concern As Interface, After Advice",
+//                        2,0,0);
+//        aspectMiningByCategories[11] = aspectMiningByCategory;
+//
+//        aspectMiningByCategory =
+//                new AspectMiningByCategory("Cross Cutting Concern As Interface, Around Advice",
+//                        1,0,0);
+//        aspectMiningByCategories[12] = aspectMiningByCategory;
+//
+//
+//        aspectMiningSummary.setAspectMiningByCategory(aspectMiningByCategories);
+//
+//        int total = 0;
+//        AspectMiningByCategory[] aspectMineByCategory = aspectMiningSummary.getAspectMineByCategory();
+//        for (int i = 0; i < aspectMineByCategory.length; i++) {
+//            total += aspectMineByCategory[i].getClusteringCount();
+//        }
+//        aspectMiningSummary.setClusteringTotalCount(total);
     }
 
     public void getAspectMiningResults(Map<String, String> aspectMineMap) {

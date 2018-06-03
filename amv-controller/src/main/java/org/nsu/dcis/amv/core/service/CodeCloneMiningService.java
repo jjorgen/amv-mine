@@ -1,6 +1,7 @@
 package org.nsu.dcis.amv.core.service;
 
 import com.github.javaparser.ast.MethodRepresentation;
+import com.github.javaparser.extend.CompilationUnitWrapper;
 import org.apache.log4j.Logger;
 import org.nsu.dcis.amv.core.domain.CodeCloneResult;
 import org.nsu.dcis.amv.core.domain.FileScanResult;
@@ -41,10 +42,17 @@ public class CodeCloneMiningService {
                 amvConfiguration.getFileExtensions());
     }
 
-    public CodeCloneMiningResult getCodeCloneMiningResults(String rootDir, List<String> excludedDirectoryList, Set<String> fileExtensions) {
+    public CodeCloneMiningResult getCodeCloneMiningResults(String rootDir, List<String> excludedDirectoryList,
+                                                           Set<String> fileExtensions) {
+        log.info("Get code clone mining results");
+        log.info("Root Dir: " + rootDir);
+        log.info("Excluded directory list" + excludedDirectoryList);
+        log.info("File Extensions" + fileExtensions );
         FileScanResult fileScanResult = fileScanningService.scan(rootDir, excludedDirectoryList, fileExtensions);
+        log.info("After calling scan");
         List<MethodRepresentation> methodRepresentations = methodRepresentationService.getMethodRepresentations(fileScanResult);
         List<CodeCloneResult> codeCloneResults = new ArrayList();
+        log.info("Number of method representations: " + methodRepresentations.size());
         for (int i = 0; i < methodRepresentations.size(); i++) {
             for (int j = i + 1; j < methodRepresentations.size(); j++) {
                 CodeCloneResult codeCloneResult = getCodeCloneMiningResult(methodRepresentations.get(i), methodRepresentations.get(j));
@@ -159,5 +167,19 @@ public class CodeCloneMiningService {
             }
         }
         return fromBottomOfMethodLineCount;
+    }
+
+    public List<CompilationUnitWrapper> getAllInterfaces(String rootDir, List<String> excludedDirectoryList, Set<String> fileExtensions) {
+        List<CompilationUnitWrapper> interfaces = new ArrayList<CompilationUnitWrapper>();
+        FileScanResult fileScanResult = fileScanningService.scan(rootDir, excludedDirectoryList, fileExtensions);
+        List<MethodRepresentation> methodRepresentations = new ArrayList<>();
+        log.info("methodRepresentations");
+        for (String filePath : fileScanResult.getFileList()) {
+            CompilationUnitWrapper compilationUnitWrapper = new CompilationUnitWrapper(filePath);
+            if (compilationUnitWrapper.isInterface()) {
+                interfaces.add(compilationUnitWrapper);
+            }
+        }
+        return interfaces;
     }
 }
