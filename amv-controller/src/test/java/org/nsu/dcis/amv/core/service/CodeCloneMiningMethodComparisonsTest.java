@@ -89,6 +89,15 @@ public class CodeCloneMiningMethodComparisonsTest {
         displayCloneStatistics(codeCloneMiningResult.getCodeCloneResults());
     }
 
+    @Test
+    public void getCodeCloningResultsForAroundAdvice() throws Exception {
+        CodeCloneMiningResult codeCloneMiningResult =
+                codeCloneMiningService.getCodeCloneMiningResults(amvConfigurationInstrumentation.getRootDir(),
+                        amvConfigurationInstrumentation.getExcludedDirectoryList(),
+                        amvConfigurationInstrumentation.getFileExtensions());
+        displayAroundAdviceCandidates(codeCloneMiningResult);
+    }
+
     private void displayBeforeAdviceCandidates(CodeCloneMiningResult codeCloneMiningResult) {
         List<CodeCloneResult> beforeAdviceCandidates = codeCloneMiningResult.getBeforeAdviceCandidates();
         log.info("**********************************************************************************");

@@ -68,19 +68,25 @@ public class CrossCuttingConcernAsInterfaceServiceTest {
         AspectMiningByCategory afterAdviceCrossCuttingConcernAsInterfaceCandidates =
                 crossCuttingConcernAsInterfaceService.getAfterAdviceCrossCuttingConcernAsInterfaceCandidates(
                         codeCloneMiningResult.getAfterAdviceCandidates(), allInterfaces);
-        log.info("Clustering count: " + afterAdviceCrossCuttingConcernAsInterfaceCandidates.getClusteringCount());
+        assertTrue(afterAdviceCrossCuttingConcernAsInterfaceCandidates.getClusteringCount() == 1);
+    }
+
+    @Test
+    public void getAroundAdviceCandidatesAsInterfaceCandidates() throws Exception {
+        AspectMiningByCategory aroundAdviceCrossCuttingConcernAsInterface =
+                crossCuttingConcernAsInterfaceService.getAroundAdviceCandidatesAsInterface(
+                codeCloneMiningResult.getAroundAdviceCandidates(), allInterfaces);
+        log.info(aroundAdviceCrossCuttingConcernAsInterface.getClusteringCount() == 0);
+        assertTrue(aroundAdviceCrossCuttingConcernAsInterface.getCloningCount() == 1);
     }
 
 //    @Test
-//    public void getAroundAdviceCandidatesAsInterfaceCandidates() throws Exception {
-//        crossCuttingConcernAsInterfaceService.getAroundAdviceCandidatesAsInterfaceCandidates(
-//                codeCloneMiningResult.getAfterAdviceCandidates(), allInterfaces);
+//    public void getClonesAsInterface() throws Exception {
+//        AspectMiningByCategory clonesAsInterface =
+//                crossCuttingConcernAsInterfaceService.getClonesAsInterface(
+//                codeCloneMiningResult.getCodeCloneResults(), allInterfaces);
+//        log.info("Clustering count: " + clonesAsInterface.getClusteringCount());
 //    }
-
-    @Test
-    public void getClonesAsInterface() throws Exception {
-    }
-
 
     @Test
     public void getCrossCuttingConcerns() throws Exception {

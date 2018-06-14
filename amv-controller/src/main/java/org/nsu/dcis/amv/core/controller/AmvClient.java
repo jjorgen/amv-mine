@@ -80,6 +80,7 @@ public class AmvClient {
             aspectMiningByCategoryArray[idx++] = aspectMiningByCategoryIterator.next();
         }
         aspectMiningSummary.setAspectMiningByCategory(aspectMiningByCategoryArray);
+//        aspectMiningSummary.setCloningTotalCount(3);
         return aspectMiningSummary;
 
 //  This code is for testing only

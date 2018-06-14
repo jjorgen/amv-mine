@@ -48,7 +48,7 @@ public class CrossCuttingConcernAsInterfaceService
         log.info("Code Clone Statistics: " + codeCloneStatistics);
         aspectMiningByCategoryList.add(getBeforeAdviceCrossCuttingConcernAsInterfaceCandidates(codeCloneMiningResult.getBeforeAdviceCandidates(), getAllInterfaces()));
         aspectMiningByCategoryList.add(getAfterAdviceCrossCuttingConcernAsInterfaceCandidates(codeCloneMiningResult.getAfterAdviceCandidates(), getAllInterfaces()));
-//        aspectMiningByCategoryList.add(getAroundAdviceCandidatesAsInterfaceCandidates(codeCloneMiningResult));
+        aspectMiningByCategoryList.add(getAroundAdviceCandidatesAsInterface(codeCloneMiningResult.getAroundAdviceCandidates(), getAllInterfaces()));
 //        aspectMiningByCategoryList.add(getClonesAsInterface(codeCloneMiningResult));
         log.info("Returning aspectMiningByCategoryList: " + aspectMiningByCategoryList);
         return aspectMiningByCategoryList;
@@ -60,43 +60,82 @@ public class CrossCuttingConcernAsInterfaceService
                 amvConfigurationInstrumentation.getFileExtensions());
     }
 
-    public AspectMiningByCategory getClonesAsInterface(CodeCloneMiningResult codeCloneMiningResult) {
-        int codeCloneWithComminInterface = 0;
-        List<CodeCloneResult> codeClones = codeCloneMiningResult.getClone();
-        log.info("**********************************************************************************");
-        log.info("The Clone Count was: " + codeCloneMiningResult.getClone().size());
-        log.info("**********************************************************************************");
-        for (CodeCloneResult CodeCloneResult : codeClones) {
-            NodeList<ClassOrInterfaceType> firstMethodImplements = enclosingClassImplements(CodeCloneResult.getMethodPair().getFirst());
-            NodeList<ClassOrInterfaceType> secondMethodImplements = enclosingClassImplements(CodeCloneResult.getMethodPair().getSecond());
-            Set<String> commonInterfaceNames = getInterfacesInCommon(firstMethodImplements, secondMethodImplements);
-            if (commonInterfaceNames.size() > 0) {
-                ++codeCloneWithComminInterface;
-                log.info("First Method Name:  " + CodeCloneResult.getMethodPair().getFirst().getFullMethodName());
-                log.info("Second Method Name: " + CodeCloneResult.getMethodPair().getSecond().getFullMethodName());
-                log.info("With common interface(s) found: " + commonInterfaceNames);
-                log.info("**********************************************************************************");
-            }
-        }
-        log.info("**********************************************************************************");
-        log.info("The number of Code Clones with common interface was: " + codeCloneWithComminInterface);
-        log.info("**********************************************************************************");
-        return new AspectMiningByCategory("Cross Cutting Concern As Interface, Clone",
-                codeCloneWithComminInterface,0,0);
-    }
-
     public AspectMiningByCategory getBeforeAdviceCrossCuttingConcernAsInterfaceCandidates(
            List<CodeCloneResult> beforeAdviceCandidates, List<CompilationUnitWrapper> allInterfaces) {
         int beforeAdviceCandidatesWithComonInterface = getCommonInterfaceCount(beforeAdviceCandidates, allInterfaces);
         return new AspectMiningByCategory("Cross Cutting Concern As Interface, Before Advice",
-                beforeAdviceCandidatesWithComonInterface,0,0);
+                0,beforeAdviceCandidatesWithComonInterface,0);
     }
 
     public AspectMiningByCategory getAfterAdviceCrossCuttingConcernAsInterfaceCandidates(
             List<CodeCloneResult> beforeAdviceCandidates, List<CompilationUnitWrapper> allInterfaces) {
-        int beforeAdviceCandidatesWithCommonInterface = getCommonInterfaceCount(beforeAdviceCandidates, allInterfaces);
+        int afterAdviceCandidatesWithCommonInterface = getCommonInterfaceCount(beforeAdviceCandidates, allInterfaces);
         return new AspectMiningByCategory("Cross Cutting Concern As Interface, After Advice",
-                beforeAdviceCandidatesWithCommonInterface,0,0);
+                0,afterAdviceCandidatesWithCommonInterface,0);
+    }
+
+    public AspectMiningByCategory getAroundAdviceCandidatesAsInterface(
+            List<CodeCloneResult> aroundAdviceCandidates, List<CompilationUnitWrapper> allInterfaces) {
+        int aroundAdviceCandidatesWithCommonInterface = getCommonInterfaceCount(aroundAdviceCandidates, allInterfaces);
+        return new AspectMiningByCategory("Cross Cutting Concern As Interface, Around Advice",
+                0, aroundAdviceCandidatesWithCommonInterface,0);
+    }
+
+//    public AspectMiningByCategory getClonesAsInterface(
+//        List<CodeCloneResult> cloneCandidates, List<CompilationUnitWrapper> allInterfaces) {
+//            int beforeAdviceCandidatesWithCommonInterface = getCommonInterfaceCount(cloneCandidates, allInterfaces);
+//            return new AspectMiningByCategory("Code Clone As Interface, After Advice",
+//                    beforeAdviceCandidatesWithCommonInterface,0,0);
+//    }
+
+//    public AspectMiningByCategory getClonesAsInterface(CodeCloneMiningResult codeCloneMiningResult) {
+//        int codeCloneWithComminInterface = 0;
+//        List<CodeCloneResult> codeClones = codeCloneMiningResult.getClone();
+//        log.info("**********************************************************************************");
+//        log.info("The Clone Count was: " + codeCloneMiningResult.getClone().size());
+//        log.info("**********************************************************************************");
+//        for (CodeCloneResult CodeCloneResult : codeClones) {
+//            NodeList<ClassOrInterfaceType> firstMethodImplements = enclosingClassImplements(CodeCloneResult.getMethodPair().getFirst());
+//            NodeList<ClassOrInterfaceType> secondMethodImplements = enclosingClassImplements(CodeCloneResult.getMethodPair().getSecond());
+//            Set<String> commonInterfaceNames = getInterfacesInCommon(firstMethodImplements, secondMethodImplements);
+//            if (commonInterfaceNames.size() > 0) {
+//                ++codeCloneWithComminInterface;
+//                log.info("First Method Name:  " + CodeCloneResult.getMethodPair().getFirst().getFullMethodName());
+//                log.info("Second Method Name: " + CodeCloneResult.getMethodPair().getSecond().getFullMethodName());
+//                log.info("With common interface(s) found: " + commonInterfaceNames);
+//                log.info("**********************************************************************************");
+//            }
+//        }
+//        log.info("**********************************************************************************");
+//        log.info("The number of Code Clones with common interface was: " + codeCloneWithComminInterface);
+//        log.info("**********************************************************************************");
+//        return new AspectMiningByCategory("Cross Cutting Concern As Interface, Clone",
+//                codeCloneWithComminInterface,0,0);
+//    }
+
+
+//        log.info("**********************************************************************************");
+//        log.info("The Around Advice Count was: " + codeCloneMiningResult.getAroundAdviceCandidates().size());
+//        log.info("**********************************************************************************");
+//        List<CodeCloneResult> aroundAdviceCandidates = codeCloneMiningResult.getAroundAdviceCandidates();
+//        for (CodeCloneResult codeCloneResult : aroundAdviceCandidates) {
+//            NodeList<ClassOrInterfaceType> firstMethodImplements = enclosingClassImplements(codeCloneResult.getMethodPair().getFirst());
+//            NodeList<ClassOrInterfaceType> secondMethodImplements = enclosingClassImplements(codeCloneResult.getMethodPair().getSecond());
+//            Set<String> commonInterfaceNames = getInterfacesInCommon(firstMethodImplements, secondMethodImplements);
+//            if (commonInterfaceNames.size() > 0) {
+//                log.info("First Method Name:  " + codeCloneResult.getMethodPair().getFirst().getFullMethodName());
+//                log.info("Second Method Name: " + codeCloneResult.getMethodPair().getSecond().getFullMethodName());
+//                log.info("With common interface(s) found: " + commonInterfaceNames);
+//                log.info("**********************************************************************************");
+//            }
+//        }
+//        log.info("**********************************************************************************");
+//        log.info("The number of After Advice Candidates with common interface was: " + aroundAdviceCandidatesWithCommonInterface);
+//        log.info("**********************************************************************************");
+//        return new AspectMiningByCategory("Cross Cutting Concern As Interface, Around Advice",
+//                aroundAdviceCandidatesWithCommonInterface,0,0);
+//
+
 //
 //        int afterAdviceCandidatesWithComminInterface = 0;
 //        List<CodeCloneResult> afterAdviceCandidates = codeCloneMiningResult.getAfterAdviceCandidates();
@@ -126,7 +165,6 @@ public class CrossCuttingConcernAsInterfaceService
 //        log.info("**********************************************************************************");
 //        return new AspectMiningByCategory("Cross Cutting Concern As Interface, After Advice",
 //                afterAdviceCandidatesWithComminInterface,0,0);
-    }
 
     private int getCommonInterfaceCount(List<CodeCloneResult> adviceCandidates,
                                         List<CompilationUnitWrapper> allInterfaces) {
@@ -139,9 +177,11 @@ public class CrossCuttingConcernAsInterfaceService
             CompilationUnitWrapper implementingInterface =
                 getImplementingInterface(codeCloneResult.getMethodPair().getFirst().getMethodName(),
                 codeCloneResult.getMethodPair().getSecond().getMethodName(),
-                getImplementingInterfaceCandidates(commonInterfaceNames, allInterfaces));
+                getImplementingInterfaceCandidates(commonInterfaceNames, allInterfaces, codeCloneResult.getMethodPair().getFirst().getMethodName()));
 
             if (implementingInterface != null) {
+                log.info("Common Interface Name: " + implementingInterface.getClassOrInterfaceName());
+                log.info("Method implemented by interface: " + codeCloneResult.getMethodPair().getFirst().getMethodName());
                 ++adviceCandidatesWithCommonInterface;
             }
         }
@@ -149,13 +189,20 @@ public class CrossCuttingConcernAsInterfaceService
     }
 
 
-    private List getImplementingInterfaceCandidates(Set<String> commonInterfaceNames, List<CompilationUnitWrapper> allInterfaces) {
+    private List getImplementingInterfaceCandidates(Set<String> commonInterfaceNames, List<CompilationUnitWrapper> allInterfaces, String methodName) {
         List implementingInterfaceCandidates = new ArrayList<CompilationUnitWrapper>();
         for (String commonInterfaceName : commonInterfaceNames) {
             for (CompilationUnitWrapper  compilationUnitWrapper : allInterfaces) {
-                log.info("Class Or Interface Name: " + compilationUnitWrapper.getClassOrInterfaceName());
                 if (commonInterfaceName.equals(compilationUnitWrapper.getClassOrInterfaceName())) {
-                    implementingInterfaceCandidates.add(compilationUnitWrapper);
+                    log.info("Class Or Interface Name: " + compilationUnitWrapper.getClassOrInterfaceName());
+                    log.info("Common Interface Name:   " + commonInterfaceName);
+                    if (compilationUnitWrapper.getMethodNames().contains(methodName)) {
+                        log.info("*************************************************************");
+                        log.info("Common Interface Name: " + compilationUnitWrapper.getMethodNames());
+                        log.info("Compilation Unit Method Names: " + methodName);
+                        log.info("Method Name: " + methodName);
+                        implementingInterfaceCandidates.add(compilationUnitWrapper);
+                    }
                 }
             }
         }
@@ -174,33 +221,6 @@ public class CrossCuttingConcernAsInterfaceService
 
     private String getImplementingInterface(String firstMethodName, String secondMethodName1, Set<String> commonInterfaceNames, List<CompilationUnitWrapper> allInterfaces) {
         return firstMethodName;
-    }
-
-    public AspectMiningByCategory getAroundAdviceCandidatesAsInterfaceCandidates(CodeCloneMiningResult codeCloneMiningResult) {
-        int aroundAdviceCandidatesWithCommonInterface = 0;
-//        List<CompilationUnitWrapper> allInterfaces = getAllInterfaces();
-
-        log.info("**********************************************************************************");
-        log.info("The Around Advice Count was: " + codeCloneMiningResult.getAroundAdviceCandidates().size());
-        log.info("**********************************************************************************");
-        List<CodeCloneResult> aroundAdviceCandidates = codeCloneMiningResult.getAroundAdviceCandidates();
-        for (CodeCloneResult codeCloneResult : aroundAdviceCandidates) {
-            NodeList<ClassOrInterfaceType> firstMethodImplements = enclosingClassImplements(codeCloneResult.getMethodPair().getFirst());
-            NodeList<ClassOrInterfaceType> secondMethodImplements = enclosingClassImplements(codeCloneResult.getMethodPair().getSecond());
-            Set<String> commonInterfaceNames = getInterfacesInCommon(firstMethodImplements, secondMethodImplements);
-            if (commonInterfaceNames.size() > 0) {
-                ++aroundAdviceCandidatesWithCommonInterface;
-                log.info("First Method Name:  " + codeCloneResult.getMethodPair().getFirst().getFullMethodName());
-                log.info("Second Method Name: " + codeCloneResult.getMethodPair().getSecond().getFullMethodName());
-                log.info("With common interface(s) found: " + commonInterfaceNames);
-                log.info("**********************************************************************************");
-            }
-        }
-        log.info("**********************************************************************************");
-        log.info("The number of After Advice Candidates with common interface was: " + aroundAdviceCandidatesWithCommonInterface);
-        log.info("**********************************************************************************");
-        return new AspectMiningByCategory("Cross Cutting Concern As Interface, Around Advice",
-                aroundAdviceCandidatesWithCommonInterface,0,0);
     }
 
     private NodeList<ClassOrInterfaceType> enclosingClassImplements(MethodRepresentation firstMethodRepresentation) {

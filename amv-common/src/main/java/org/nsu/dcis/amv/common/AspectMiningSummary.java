@@ -9,6 +9,7 @@ public class AspectMiningSummary {
     int clusteringTotalCount;
     int cloningTotalCount;
     int eventTracesTotalCount;
+    int overallTotalCount;
 
     public AspectMiningSummary() {
     }
@@ -19,6 +20,14 @@ public class AspectMiningSummary {
         this.clusteringTotalCount = clusteringTotalCount;
         this.cloningTotalCount = cloningTotalCount;
         this.eventTracesTotalCount = eventTracesTotalCount;
+    }
+
+    public void setAspectMineByCategory(AspectMiningByCategory[] aspectMineByCategory) {
+        this.aspectMineByCategory = aspectMineByCategory;
+    }
+
+    public AspectMiningByCategory[] getAspectMineByCategory() {
+        return aspectMineByCategory;
     }
 
     public int getClusteringTotalCount() {
@@ -45,16 +54,25 @@ public class AspectMiningSummary {
         this.eventTracesTotalCount = eventTracesTotalCount;
     }
 
-    public AspectMiningByCategory[] getAspectMineByCategory() {
-        return aspectMineByCategory;
+    public int getOverallTotalCount() {
+        return overallTotalCount;
     }
 
     public void setAspectMiningByCategory(AspectMiningByCategory[] aspectMineByCategory) {
         this.aspectMineByCategory = aspectMineByCategory;
+        calculateTotalNumberOfCrossCuttingConcerns();
     }
 
-    public void setAspectMineByCategory(AspectMiningByCategory[] aspectMineByCategory) {
-        this.aspectMineByCategory = aspectMineByCategory;
+    private void calculateTotalNumberOfCrossCuttingConcerns() {
+        int totalClusteringCount = 0;
+        int totalCloningCount = 0;
+        int totalEventTracingCount = 0;
+        for (int i = 0; i < aspectMineByCategory.length; i++) {
+            totalClusteringCount += aspectMineByCategory[i].getClusteringCount();
+            totalCloningCount += aspectMineByCategory[i].getCloningCount();
+            totalEventTracingCount += aspectMineByCategory[i].getEventTracesCount();
+        }
+        overallTotalCount = totalClusteringCount + totalCloningCount + totalEventTracingCount;
     }
 
     @Override
@@ -63,6 +81,7 @@ public class AspectMiningSummary {
                 "clusteringTotalCount=" + clusteringTotalCount +
                 ", cloningTotalCount=" + cloningTotalCount +
                 ", eventTracesTotalCount=" + eventTracesTotalCount +
+                ", overallTotalCount=" + overallTotalCount +
                 ", aspectMineByCategory=" + Arrays.toString(aspectMineByCategory) +
                 '}';
     }
