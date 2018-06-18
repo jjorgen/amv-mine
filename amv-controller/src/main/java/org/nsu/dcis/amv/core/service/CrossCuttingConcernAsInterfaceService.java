@@ -63,21 +63,21 @@ public class CrossCuttingConcernAsInterfaceService
     public AspectMiningByCategory getBeforeAdviceCrossCuttingConcernAsInterfaceCandidates(
            List<CodeCloneResult> beforeAdviceCandidates, List<CompilationUnitWrapper> allInterfaces) {
         int beforeAdviceCandidatesWithComonInterface = getCommonInterfaceCount(beforeAdviceCandidates, allInterfaces);
-        return new AspectMiningByCategory("Cross Cutting Concern As Interface, Before Advice",
+        return new AspectMiningByCategory("CrossCuttingConcernAsInterface_BeforeAdvice",
                 0,beforeAdviceCandidatesWithComonInterface,0);
     }
 
     public AspectMiningByCategory getAfterAdviceCrossCuttingConcernAsInterfaceCandidates(
             List<CodeCloneResult> beforeAdviceCandidates, List<CompilationUnitWrapper> allInterfaces) {
         int afterAdviceCandidatesWithCommonInterface = getCommonInterfaceCount(beforeAdviceCandidates, allInterfaces);
-        return new AspectMiningByCategory("Cross Cutting Concern As Interface, After Advice",
+        return new AspectMiningByCategory("CrossCuttingConcernAsInterface_AfterAdvice",
                 0,afterAdviceCandidatesWithCommonInterface,0);
     }
 
     public AspectMiningByCategory getAroundAdviceCandidatesAsInterface(
             List<CodeCloneResult> aroundAdviceCandidates, List<CompilationUnitWrapper> allInterfaces) {
         int aroundAdviceCandidatesWithCommonInterface = getCommonInterfaceCount(aroundAdviceCandidates, allInterfaces);
-        return new AspectMiningByCategory("Cross Cutting Concern As Interface, Around Advice",
+        return new AspectMiningByCategory("CrossCuttingConcernAsInterface_AroundAdvice",
                 0, aroundAdviceCandidatesWithCommonInterface,0);
     }
 
