@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nsu.dcis.amv.common.AspectMiningByCategory;
+import org.nsu.dcis.amv.common.AspectMiningDetailResult;
 import org.nsu.dcis.amv.core.domain.CodeCloneResult;
 import org.nsu.dcis.amv.core.exception.AspectCloneException;
 import org.nsu.dcis.amv.core.instrumentation.AmvConfigurationInstrumentation;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Created by jorgej2 on 1/23/2018.
@@ -53,6 +55,12 @@ public class CrossCuttingConcernAsInterfaceServiceTest {
     public void setUp() throws Exception {
         codeCloneMiningResult = crossCuttingConcernAsInterfaceService.getCodeCloneMiningResult();
         allInterfaces = crossCuttingConcernAsInterfaceService.getAllInterfaces();
+    }
+
+    @Test
+    public void getAroundAdviceDetailResults() throws Exception {
+        AspectMiningDetailResult aroundAdviceDetailResults = crossCuttingConcernAsInterfaceService.getAroundAdviceDetailResults();
+        assertNotNull(aroundAdviceDetailResults);
     }
 
     @Test

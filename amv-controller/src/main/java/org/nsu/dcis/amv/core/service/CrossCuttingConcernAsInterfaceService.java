@@ -9,6 +9,7 @@ import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.extend.CompilationUnitWrapper;
 import org.apache.log4j.Logger;
 import org.nsu.dcis.amv.common.AspectMiningByCategory;
+import org.nsu.dcis.amv.common.AspectMiningDetailResult;
 import org.nsu.dcis.amv.core.domain.CodeCloneResult;
 import org.nsu.dcis.amv.core.exception.AspectCloneException;
 import org.nsu.dcis.amv.core.instrumentation.AmvConfigurationInstrumentation;
@@ -37,6 +38,17 @@ public class CrossCuttingConcernAsInterfaceService
     @Autowired
     private CodeCloneMiningService codeCloneMiningService;
 
+    public AspectMiningDetailResult getAroundAdviceDetailResults() {
+        CodeCloneMiningResult codeCloneMiningResult = getCodeCloneMiningResult();
+        AspectMiningByCategory aroundAdviceCandidatesAsInterface =
+                getAroundAdviceCandidatesAsInterface(codeCloneMiningResult.getAroundAdviceCandidates(), getAllInterfaces());
+        return extractAroundAdviceDetailResults(aroundAdviceCandidatesAsInterface);
+    }
+
+    private AspectMiningDetailResult extractAroundAdviceDetailResults(AspectMiningByCategory aroundAdviceCandidatesAsInterface) {
+        return new AspectMiningDetailResult();
+    }
+
     public List<AspectMiningByCategory> getCrossCuttingConcerns() {
         List<AspectMiningByCategory> aspectMiningByCategoryList = new ArrayList();
 
@@ -64,6 +76,7 @@ public class CrossCuttingConcernAsInterfaceService
            List<CodeCloneResult> beforeAdviceCandidates, List<CompilationUnitWrapper> allInterfaces) {
         int beforeAdviceCandidatesWithComonInterface = getCommonInterfaceCount(beforeAdviceCandidates, allInterfaces);
         return new AspectMiningByCategory("CrossCuttingConcernAsInterface_BeforeAdvice",
+                "Cross Cutting Concern As Interface Before Advice",
                 0,beforeAdviceCandidatesWithComonInterface,0);
     }
 
@@ -71,6 +84,7 @@ public class CrossCuttingConcernAsInterfaceService
             List<CodeCloneResult> beforeAdviceCandidates, List<CompilationUnitWrapper> allInterfaces) {
         int afterAdviceCandidatesWithCommonInterface = getCommonInterfaceCount(beforeAdviceCandidates, allInterfaces);
         return new AspectMiningByCategory("CrossCuttingConcernAsInterface_AfterAdvice",
+                "Cross Cutting Concern As Interface After Advice",
                 0,afterAdviceCandidatesWithCommonInterface,0);
     }
 
@@ -78,6 +92,7 @@ public class CrossCuttingConcernAsInterfaceService
             List<CodeCloneResult> aroundAdviceCandidates, List<CompilationUnitWrapper> allInterfaces) {
         int aroundAdviceCandidatesWithCommonInterface = getCommonInterfaceCount(aroundAdviceCandidates, allInterfaces);
         return new AspectMiningByCategory("CrossCuttingConcernAsInterface_AroundAdvice",
+                "Cross Cutting Concern As Interface Around Advice",
                 0, aroundAdviceCandidatesWithCommonInterface,0);
     }
 
@@ -115,9 +130,9 @@ public class CrossCuttingConcernAsInterfaceService
 
 
 //        log.info("**********************************************************************************");
-//        log.info("The Around Advice Count was: " + codeCloneMiningResult.getAroundAdviceCandidates().size());
+//        log.info("The Around Advice Count was: " + codeCloneMiningResult.getAroundAdviceDetailResults().size());
 //        log.info("**********************************************************************************");
-//        List<CodeCloneResult> aroundAdviceCandidates = codeCloneMiningResult.getAroundAdviceCandidates();
+//        List<CodeCloneResult> aroundAdviceCandidates = codeCloneMiningResult.getAroundAdviceDetailResults();
 //        for (CodeCloneResult codeCloneResult : aroundAdviceCandidates) {
 //            NodeList<ClassOrInterfaceType> firstMethodImplements = enclosingClassImplements(codeCloneResult.getMethodPair().getFirst());
 //            NodeList<ClassOrInterfaceType> secondMethodImplements = enclosingClassImplements(codeCloneResult.getMethodPair().getSecond());
@@ -262,5 +277,4 @@ public class CrossCuttingConcernAsInterfaceService
                 amvConfigurationInstrumentation.getFileExtensions());
         return allInterfaces;
     }
-
 }

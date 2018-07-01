@@ -1,9 +1,6 @@
 package org.nsu.dcis.amv.core.controller;
 
-import org.nsu.dcis.amv.common.AspectMiningByCategory;
-import org.nsu.dcis.amv.common.AspectMiningRequest;
-import org.nsu.dcis.amv.common.AspectMiningResult;
-import org.nsu.dcis.amv.common.AspectMiningSummary;
+import org.nsu.dcis.amv.common.*;
 import org.nsu.dcis.amv.core.service.CallsAtTheBeginningOfMethodService;
 import org.nsu.dcis.amv.core.service.CallsAtTheEndOfMethodService;
 import org.nsu.dcis.amv.core.service.CrossCuttingConcernAsInterfaceService;
@@ -40,6 +37,11 @@ public class AmvClient {
     private Logger log = Logger.getLogger(getClass().getName());
     private AspectMiningByCategory[] aspectMiningByCategory;
 
+    public AspectMiningDetailResult getAspectMiningDetailResult(String crossCuttingConcernCategory) {
+        return crossCuttingConcernAsInterfaceService.getAroundAdviceDetailResults();
+    }
+
+
     public AspectMiningSummary getAspectMiningResults(AspectMiningRequest aspectMiningRequest) {
         List<AspectMiningByCategory> aspectMiningByCategoryList = new ArrayList();
 
@@ -58,15 +60,18 @@ public class AmvClient {
                 aspectMiningSummary = new AspectMiningSummary(100, 150, 180);
 
                 AspectMiningByCategory aspectMiningByCategory =
-                        new AspectMiningByCategory("Calls At The Beginning Of A Method",
+                        new AspectMiningByCategory("Calls_At_The_Beginning_Of_A_Method",
+                                "Calls At The Beginning Of A Method",
                                 numberOfCommonCallsAtTheBeginningOfAMethod,0,0);
+
                 aspectMiningByCategories[0] = aspectMiningByCategory;
 
                 int numberOfCommonCallsAtTheEndOfAMethod = callsAtTheEndOfMethodService.commonCallsAtTheEndOfAMethod();
                 log.info("Number Of Calls At The End Of A Method: " + numberOfCommonCallsAtTheBeginningOfAMethod);
 
                 aspectMiningByCategory =
-                        new AspectMiningByCategory("Calls At The End Of A Method",
+                        new AspectMiningByCategory("Calls_At_The_End_Of_A_Method",
+                                "Calls At The End Of A Method",
                                 numberOfCommonCallsAtTheEndOfAMethod,0,0);
                 aspectMiningByCategories[1] = aspectMiningByCategory;
 
@@ -189,6 +194,7 @@ public class AmvClient {
         AspectMiningByCategory[] aspectMiningByCategories = new AspectMiningByCategory[1];
         AspectMiningByCategory aspectMiningByCategory;
         aspectMiningByCategory = new AspectMiningByCategory(
+                "Calls_At_The_Beginning_Of_A_Method",
                 "Calls At The Beginning Of A Method",
                 100,
                 200,
@@ -197,4 +203,5 @@ public class AmvClient {
         aspectMiningByCategories[0] = aspectMiningByCategory;
         return aspectMiningByCategories;
     }
+
 }

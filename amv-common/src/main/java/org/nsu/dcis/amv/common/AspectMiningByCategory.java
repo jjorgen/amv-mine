@@ -3,7 +3,9 @@ package org.nsu.dcis.amv.common;
 /**
  * Created by jorgej2 on 1/21/2018.
  */
-public class AspectMiningByCategory {    String crossCuttingConcernCategory;
+public class AspectMiningByCategory {
+    String crossCuttingConcernCategory;
+    String displayName;
     int clusteringCount;
     int cloningCount;
     int eventTracesCount;
@@ -11,7 +13,9 @@ public class AspectMiningByCategory {    String crossCuttingConcernCategory;
     AspectMiningByCategory() {
     }
 
-    public AspectMiningByCategory(String crossCuttingConcernCategory, int clusteringCount, int cloningCount, int eventTracesCount) {
+    public AspectMiningByCategory(String crossCuttingConcernCategory, String displayName,
+                                  int clusteringCount, int cloningCount, int eventTracesCount) {
+        this.displayName = displayName;
         this.crossCuttingConcernCategory = crossCuttingConcernCategory;
         this.clusteringCount = clusteringCount;
         this.cloningCount = cloningCount;
@@ -48,6 +52,14 @@ public class AspectMiningByCategory {    String crossCuttingConcernCategory;
 
     public void setEventTracesCount(int eventTracesCount) {
         this.eventTracesCount = eventTracesCount;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     @Override

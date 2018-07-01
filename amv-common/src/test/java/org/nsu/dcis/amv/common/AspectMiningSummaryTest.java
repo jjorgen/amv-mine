@@ -15,15 +15,17 @@ public class AspectMiningSummaryTest {
         AspectMiningSummary aspectMiningSummary = new AspectMiningSummary();
 
         AspectMiningByCategory before =
-                new AspectMiningByCategory("Cross Cutting Concern As Interface, Before Advice",
+                new AspectMiningByCategory("Cross_Cutting_Concern_As_Interface_Before_Advice",
+                        "Cross Cutting Concern As Interface, Before Advice",
                 0,10,0);
         AspectMiningByCategory after =
-                new AspectMiningByCategory("Cross Cutting Concern As Interface, Before Advice",
+                new AspectMiningByCategory("Cross_Cutting_Concern_As_Interface_Before_Advice",
+                        "Cross Cutting Concern As Interface, Before Advice",
                         0,20,0);
         AspectMiningByCategory around =
-                new AspectMiningByCategory("Cross Cutting Concern As Interface, Before Advice",
+                new AspectMiningByCategory("Cross_Cutting_Concern_As_Interface_Before_Advice",
+                        "Cross Cutting Concern As Interface, Before Advice",
                         0,30,0);
-
 
         AspectMiningByCategory[] aspectMiningByCategory = new AspectMiningByCategory[3];
         aspectMiningByCategory[0] = before;
