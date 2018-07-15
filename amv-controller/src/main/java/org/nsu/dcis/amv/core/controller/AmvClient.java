@@ -38,9 +38,17 @@ public class AmvClient {
     private AspectMiningByCategory[] aspectMiningByCategory;
 
     public AspectMiningDetailResult getAspectMiningDetailResult(String crossCuttingConcernCategory) {
-        return crossCuttingConcernAsInterfaceService.getAroundAdviceDetailResults();
-    }
+        AspectMiningDetailResult aroundAdviceDetailResults = null;
+        if ("CrossCuttingConcernAsInterface_AroundAdvice".equalsIgnoreCase(crossCuttingConcernCategory)) {
+            aroundAdviceDetailResults = crossCuttingConcernAsInterfaceService.getAroundAdviceDetailResults();
+        } else if ("CrossCuttingConcernAsInterface_BeforeAdvice".equalsIgnoreCase(crossCuttingConcernCategory)) {
+            aroundAdviceDetailResults = crossCuttingConcernAsInterfaceService.getBeforeAdviceDetailResults();
+        } else if ("CrossCuttingConcernAsInterface_AfterAdvice".equalsIgnoreCase(crossCuttingConcernCategory)) {
+            aroundAdviceDetailResults = crossCuttingConcernAsInterfaceService.getAfterAdviceDetailResults();
+        }
 
+        return aroundAdviceDetailResults;
+    }
 
     public AspectMiningSummary getAspectMiningResults(AspectMiningRequest aspectMiningRequest) {
         List<AspectMiningByCategory> aspectMiningByCategoryList = new ArrayList();

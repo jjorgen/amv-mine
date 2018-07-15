@@ -38,18 +38,36 @@ public class CrossCuttingConcernAsInterfaceService
 
     @Autowired
     private CodeCloneMiningService codeCloneMiningService;
+    private AspectMiningDetailResult beforeAdviceDetailResults;
+    private AspectMiningDetailResult afterAdviceDetailResults;
 
     public AspectMiningDetailResult getAroundAdviceDetailResults() {
         CodeCloneMiningResult codeCloneMiningResult = getCodeCloneMiningResult();
         ArrayList<CodeCloneResult> codeCloneResults =
                 getCommonInterfaceCodeCloneResults(codeCloneMiningResult.getAroundAdviceCandidates(), getAllInterfaces());
 
-        return extractAroundAdviceDetailResultsNEW(codeCloneResults);
+        return extractAroundAdviceDetailResults(codeCloneResults, "Cross Cutting Concern As Interface Around Advice");
     }
 
-    private AspectMiningDetailResult extractAroundAdviceDetailResultsNEW(ArrayList<CodeCloneResult> codeCloneResults) {
+    public AspectMiningDetailResult getBeforeAdviceDetailResults() {
+        CodeCloneMiningResult codeCloneMiningResult = getCodeCloneMiningResult();
+        ArrayList<CodeCloneResult> codeCloneResults =
+                getCommonInterfaceCodeCloneResults(codeCloneMiningResult.getBeforeAdviceCandidates(), getAllInterfaces());
+
+        return extractAroundAdviceDetailResults(codeCloneResults, "Cross Cutting Concern As Interface Before Advice");
+    }
+
+    public AspectMiningDetailResult getAfterAdviceDetailResults() {
+        CodeCloneMiningResult codeCloneMiningResult = getCodeCloneMiningResult();
+        ArrayList<CodeCloneResult> codeCloneResults =
+                getCommonInterfaceCodeCloneResults(codeCloneMiningResult.getAfterAdviceCandidates(), getAllInterfaces());
+
+        return extractAroundAdviceDetailResults(codeCloneResults, "Cross Cutting Concern As Interface After Advice");
+    }
+
+    private AspectMiningDetailResult extractAroundAdviceDetailResults(ArrayList<CodeCloneResult> codeCloneResults, String adviceType) {
         AspectMiningDetailResult aspectMiningDetailResult = new AspectMiningDetailResult();
-        aspectMiningDetailResult.setCrossCuttingConcernCategoryDisplayName("Cross Cutting Concern As Interface Around Advice");
+        aspectMiningDetailResult.setCrossCuttingConcernCategoryDisplayName(adviceType);
         aspectMiningDetailResult.setLeftSideHeading("First Duplicate Method");
         aspectMiningDetailResult.setRightSideHeading("Duplicated Methods Detail");
         aspectMiningDetailResult.setCallingMethod("Calling Method");
@@ -60,12 +78,13 @@ public class CrossCuttingConcernAsInterfaceService
                 aspectMiningDetailResult.setCallingMethod(codeCloneResults.get(0).getMethodPair().getFirst().getMethodName());
             }
             CalledMethod calledMethod = new CalledMethod();
-            calledMethod.setCalledMethodName(codeCloneResults.get(i).getMethodPair().getFirst().getFullMethodName());
+//            calledMethod.setCalledMethodName(codeCloneResults.get(i).getMethodPair().getFirst().getFullMethodName());
+            calledMethod.setCalledMethodName(codeCloneResults.get(i).getMethodPair().getFirst().getFilePath() + " : " + codeCloneResults.get(i).getMethodPair().getFirst().getMethodName());
             calledMethod.setCalledMethodDetail(codeCloneResults.get(i).getMethodPair().getFirst().getStringifiedWithoutComments());
             calledMethods[i] = calledMethod;
 
             calledMethod = new CalledMethod();
-            calledMethod.setCalledMethodName(codeCloneResults.get(i).getMethodPair().getSecond().getFullMethodName());
+            calledMethod.setCalledMethodName(codeCloneResults.get(i).getMethodPair().getSecond().getFilePath() + " : " + codeCloneResults.get(i).getMethodPair().getSecond().getMethodName());
             calledMethod.setCalledMethodDetail(codeCloneResults.get(i).getMethodPair().getSecond().getStringifiedWithoutComments());
             calledMethods[i + 1] = calledMethod;
         }
@@ -74,24 +93,24 @@ public class CrossCuttingConcernAsInterfaceService
         return aspectMiningDetailResult;
     }
 
-    private AspectMiningDetailResult extractAroundAdviceDetailResults(AspectMiningByCategory aroundAdviceCandidatesAsInterface) {
-        AspectMiningDetailResult aspectMiningDetailResult = new AspectMiningDetailResult();
-        aspectMiningDetailResult.setCrossCuttingConcernCategoryDisplayName("Cross Cutting Concern As Interface Around Advice");
-        aspectMiningDetailResult.setLeftSideHeading("First Duplicate Method");
-        aspectMiningDetailResult.setRightSideHeading("Duplicated Methods Detail");
-        aspectMiningDetailResult.setCallingMethod("Calling Method");
-
-        CalledMethod[] calledMethods = new CalledMethod[2];
-        for (int i = 0; i < calledMethods.length; i++) {
-            CalledMethod calledMethod = new CalledMethod();
-            calledMethod.setCalledMethodName(new String("Called Method Number " + i));
-            calledMethod.setCalledMethodDetail(new String("Called Method Detail " + i));
-            calledMethods[i] = calledMethod;
-        }
-        aspectMiningDetailResult.setCalledMethod(calledMethods);
-
-        return aspectMiningDetailResult;
-    }
+//    private AspectMiningDetailResult extractAroundAdviceDetailResults(AspectMiningByCategory aroundAdviceCandidatesAsInterface) {
+//        AspectMiningDetailResult aspectMiningDetailResult = new AspectMiningDetailResult();
+//        aspectMiningDetailResult.setCrossCuttingConcernCategoryDisplayName("Cross Cutting Concern As Interface Around Advice");
+//        aspectMiningDetailResult.setLeftSideHeading("First Duplicate Method");
+//        aspectMiningDetailResult.setRightSideHeading("Duplicated Methods Detail");
+//        aspectMiningDetailResult.setCallingMethod("Calling Method");
+//
+//        CalledMethod[] calledMethods = new CalledMethod[2];
+//        for (int i = 0; i < calledMethods.length; i++) {
+//            CalledMethod calledMethod = new CalledMethod();
+//            calledMethod.setCalledMethodName(new String("Called Method Number " + i));
+//            calledMethod.setCalledMethodDetail(new String("Called Method Detail " + i));
+//            calledMethods[i] = calledMethod;
+//        }
+//        aspectMiningDetailResult.setCalledMethod(calledMethods);
+//
+//        return aspectMiningDetailResult;
+//    }
 
     public List<AspectMiningByCategory> getCrossCuttingConcerns() {
         List<AspectMiningByCategory> aspectMiningByCategoryList = new ArrayList();
