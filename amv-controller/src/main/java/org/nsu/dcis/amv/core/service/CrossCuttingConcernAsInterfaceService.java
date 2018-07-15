@@ -10,6 +10,7 @@ import com.github.javaparser.extend.CompilationUnitWrapper;
 import org.apache.log4j.Logger;
 import org.nsu.dcis.amv.common.AspectMiningByCategory;
 import org.nsu.dcis.amv.common.AspectMiningDetailResult;
+import org.nsu.dcis.amv.common.CalledMethod;
 import org.nsu.dcis.amv.core.domain.CodeCloneResult;
 import org.nsu.dcis.amv.core.exception.AspectCloneException;
 import org.nsu.dcis.amv.core.instrumentation.AmvConfigurationInstrumentation;
@@ -46,7 +47,22 @@ public class CrossCuttingConcernAsInterfaceService
     }
 
     private AspectMiningDetailResult extractAroundAdviceDetailResults(AspectMiningByCategory aroundAdviceCandidatesAsInterface) {
-        return new AspectMiningDetailResult();
+        AspectMiningDetailResult aspectMiningDetailResult = new AspectMiningDetailResult();
+        aspectMiningDetailResult.setCrossCuttingConcernCategoryDisplayName("Cross Cutting Concern As Interface Around Advice");
+        aspectMiningDetailResult.setLeftSideHeading("First Duplicate Method");
+        aspectMiningDetailResult.setRightSideHeading("Duplicated Methods Detail");
+        aspectMiningDetailResult.setCallingMethod("Calling Method");
+
+        CalledMethod[] calledMethods = new CalledMethod[2];
+        for (int i = 0; i < calledMethods.length; i++) {
+            CalledMethod calledMethod = new CalledMethod();
+            calledMethod.setCalledMethodName(new String("Called Method Number " + i));
+            calledMethod.setCalledMethodDetail(new String("Called Method Detail " + i));
+            calledMethods[i] = calledMethod;
+        }
+        aspectMiningDetailResult.setCalledMethod(calledMethods);
+
+        return aspectMiningDetailResult;
     }
 
     public List<AspectMiningByCategory> getCrossCuttingConcerns() {

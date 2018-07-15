@@ -3,6 +3,7 @@ package org.nsu.dcis.amv.common;
 import org.apache.log4j.Logger;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Arrays;
 
 /**
  * Created by jorgej2 on 6/20/2018.
@@ -10,19 +11,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name="aspectMiningDetailResult")
 public class AspectMiningDetailResult {
 
-    private String crossCuttingConcernCategory;
     private String crossCuttingConcernCategoryDisplayName;
-    private String calledMethod[];
+    private String leftSideHeading;
+    private String rightSideHeading;
+    private String callingMethod;
+    private CalledMethod[] calledMethod;
+    private String crossCuttingConcernCategory;
 
     private Logger log = Logger.getLogger(getClass().getName());
-
-    public String getCrossCuttingConcernCategory() {
-        return crossCuttingConcernCategory;
-    }
-
-    public void setCrossCuttingConcernCategory(String crossCuttingConcernCategory) {
-        this.crossCuttingConcernCategory = crossCuttingConcernCategory;
-    }
 
     public String getCrossCuttingConcernCategoryDisplayName() {
         return crossCuttingConcernCategoryDisplayName;
@@ -32,19 +28,55 @@ public class AspectMiningDetailResult {
         this.crossCuttingConcernCategoryDisplayName = crossCuttingConcernCategoryDisplayName;
     }
 
-    public String[] getCalledMethod() {
+    public String getLeftSideHeading() {
+        return leftSideHeading;
+    }
+
+    public void setLeftSideHeading(String leftSideHeading) {
+        this.leftSideHeading = leftSideHeading;
+    }
+
+    public String getRightSideHeading() {
+        return rightSideHeading;
+    }
+
+    public void setRightSideHeading(String rightSideHeading) {
+        this.rightSideHeading = rightSideHeading;
+    }
+
+    public String getCallingMethod() {
+        return callingMethod;
+    }
+
+    public void setCallingMethod(String callingMethod) {
+        this.callingMethod = callingMethod;
+    }
+
+    public String getCrossCuttingConcernCategory() {
+        return crossCuttingConcernCategory;
+    }
+
+    public void setCrossCuttingConcernCategory(String crossCuttingConcernCategory) {
+        this.crossCuttingConcernCategory = crossCuttingConcernCategory;
+    }
+
+    public CalledMethod[] getCalledMethod() {
         return calledMethod;
     }
 
-    public void setCalledMethod(String[] calledMethod) {
+    public void setCalledMethod(CalledMethod[] calledMethod) {
         this.calledMethod = calledMethod;
     }
 
     @Override
     public String toString() {
         return "AspectMiningDetailResult{" +
-                "crossCuttingConcernCategory='" + crossCuttingConcernCategory + '\'' +
-                ", crossCuttingConcernCategoryDisplayName='" + crossCuttingConcernCategoryDisplayName + '\'' +
+                "crossCuttingConcernCategoryDisplayName='" + crossCuttingConcernCategoryDisplayName + '\'' +
+                ", leftSideHeading='" + leftSideHeading + '\'' +
+                ", rightSideHeading='" + rightSideHeading + '\'' +
+                ", callingMethod='" + callingMethod + '\'' +
+                ", calledMethod=" + Arrays.toString(calledMethod) +
+                ", crossCuttingConcernCategory='" + crossCuttingConcernCategory + '\'' +
                 '}';
     }
 }
