@@ -68,17 +68,17 @@ public class CrossCuttingConcernAsInterfaceService
     private AspectMiningDetailResult extractAroundAdviceDetailResults(ArrayList<CodeCloneResult> codeCloneResults, String adviceType) {
         AspectMiningDetailResult aspectMiningDetailResult = new AspectMiningDetailResult();
         aspectMiningDetailResult.setCrossCuttingConcernCategoryDisplayName(adviceType);
-        aspectMiningDetailResult.setLeftSideHeading("First Duplicate Method");
+        aspectMiningDetailResult.setLeftSideHeading("Interface : First Duplicate Method");
         aspectMiningDetailResult.setRightSideHeading("Duplicated Methods Detail");
         aspectMiningDetailResult.setCallingMethod("Calling Method");
 
         CalledMethod[] calledMethods = new CalledMethod[codeCloneResults.size() * 2];
         for (int i = 0; i < codeCloneResults.size(); i++) {
             if (i == 0) {
-                aspectMiningDetailResult.setCallingMethod(codeCloneResults.get(0).getMethodPair().getFirst().getMethodName());
+                aspectMiningDetailResult.setCallingMethod(codeCloneResults.get(0).getCommonInterfaceName() +
+                " : " +  codeCloneResults.get(0).getMethodPair().getFirst().getMethodName());
             }
             CalledMethod calledMethod = new CalledMethod();
-//            calledMethod.setCalledMethodName(codeCloneResults.get(i).getMethodPair().getFirst().getFullMethodName());
             calledMethod.setCalledMethodName(codeCloneResults.get(i).getMethodPair().getFirst().getFilePath() + " : " + codeCloneResults.get(i).getMethodPair().getFirst().getMethodName());
             calledMethod.setCalledMethodDetail(codeCloneResults.get(i).getMethodPair().getFirst().getStringifiedWithoutComments());
             calledMethods[i] = calledMethod;
@@ -177,6 +177,7 @@ public class CrossCuttingConcernAsInterfaceService
             if (implementingInterface != null) {
                 log.info("Common Interface Name: " + implementingInterface.getClassOrInterfaceName());
                 log.info("Method implemented by interface: " + codeCloneResult.getMethodPair().getFirst().getMethodName());
+                codeCloneResult.setCommonInterfaceName(implementingInterface.getClassOrInterfaceName());
                 codeCloneResults.add(codeCloneResult);
             }
         }

@@ -21,6 +21,7 @@ public class CodeCloneResult {
     private int fromTopOfMethodLineCount;
     private int fromBottomMethodLineCount;
     private Logger log = Logger.getLogger(getClass().getName());
+    private String commonInterfaceName;
 
     @Autowired
     private AmvConfiguration amvConfiguration;
@@ -107,6 +108,14 @@ public class CodeCloneResult {
 
     public Pair<MethodRepresentation, MethodRepresentation> getMethodPair() {
         return methodPair;
+    }
+
+    public String getCommonInterfaceName() {
+        return commonInterfaceName;
+    }
+
+    public void setCommonInterfaceName(String commonInterfaceName) {
+        this.commonInterfaceName = commonInterfaceName;
     }
 
     public void display() {
