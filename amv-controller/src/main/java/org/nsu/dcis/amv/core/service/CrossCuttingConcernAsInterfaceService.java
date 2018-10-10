@@ -46,7 +46,7 @@ public class CrossCuttingConcernAsInterfaceService
         ArrayList<CodeCloneResult> codeCloneResults =
                 getCommonInterfaceCodeCloneResults(codeCloneMiningResult.getAroundAdviceCandidates(), getAllInterfaces());
 
-        return extractAroundAdviceDetailResults(codeCloneResults, "Cross Cutting Concern As Interface Around Advice");
+        return extractAdviceDetailResults(codeCloneResults, "Cross Cutting Concern As Interface Around Advice");
     }
 
     public AspectMiningDetailResult getBeforeAdviceDetailResults() {
@@ -54,7 +54,7 @@ public class CrossCuttingConcernAsInterfaceService
         ArrayList<CodeCloneResult> codeCloneResults =
                 getCommonInterfaceCodeCloneResults(codeCloneMiningResult.getBeforeAdviceCandidates(), getAllInterfaces());
 
-        return extractAroundAdviceDetailResults(codeCloneResults, "Cross Cutting Concern As Interface Before Advice");
+        return extractAdviceDetailResults(codeCloneResults, "Cross Cutting Concern As Interface Before Advice");
     }
 
     public AspectMiningDetailResult getAfterAdviceDetailResults() {
@@ -62,38 +62,45 @@ public class CrossCuttingConcernAsInterfaceService
         ArrayList<CodeCloneResult> codeCloneResults =
                 getCommonInterfaceCodeCloneResults(codeCloneMiningResult.getAfterAdviceCandidates(), getAllInterfaces());
 
-        return extractAroundAdviceDetailResults(codeCloneResults, "Cross Cutting Concern As Interface After Advice");
+        return extractAdviceDetailResults(codeCloneResults, "Cross Cutting Concern As Interface After Advice");
     }
 
-    private AspectMiningDetailResult extractAroundAdviceDetailResults(ArrayList<CodeCloneResult> codeCloneResults, String adviceType) {
+    private AspectMiningDetailResult extractAdviceDetailResults(ArrayList<CodeCloneResult> codeCloneResults, String adviceType) {
         AspectMiningDetailResult aspectMiningDetailResult = new AspectMiningDetailResult();
         aspectMiningDetailResult.setCrossCuttingConcernCategoryDisplayName(adviceType);
         aspectMiningDetailResult.setLeftSideHeading("Interface : First Duplicate Method");
         aspectMiningDetailResult.setRightSideHeading("Duplicated Methods Detail");
-        aspectMiningDetailResult.setCallingMethod("Calling Method");
+//        aspectMiningDetailResult.setCallingMethod("Calling Method");
 
         CalledMethod[] calledMethods = new CalledMethod[codeCloneResults.size() * 2];
+        String[] callingMethods = new String[codeCloneResults.size()];
         for (int i = 0; i < codeCloneResults.size(); i++) {
-            if (i == 0) {
-                aspectMiningDetailResult.setCallingMethod(codeCloneResults.get(0).getCommonInterfaceName() +
-                " : " +  codeCloneResults.get(0).getMethodPair().getFirst().getMethodName());
-            }
+//            if (i == 0) {
+//                aspectMiningDetailResult.setCallingMethod(codeCloneResults.get(0).getCommonInterfaceName() +
+//                " : " +  codeCloneResults.get(0).getMethodPair().getFirst().getMethodName());
+//            }
+//            callingMethods[i] = codeCloneResults.get(i).getMethodPair().getFirst().getMethodName();
+
+            callingMethods[i] = codeCloneResults.get(i).getCommonInterfaceName() +
+                                " : " +  codeCloneResults.get(i).getMethodPair().getFirst().getMethodName();
+
             CalledMethod calledMethod = new CalledMethod();
             calledMethod.setCalledMethodName(codeCloneResults.get(i).getMethodPair().getFirst().getFilePath() + " : " + codeCloneResults.get(i).getMethodPair().getFirst().getMethodName());
             calledMethod.setCalledMethodDetail(codeCloneResults.get(i).getMethodPair().getFirst().getStringifiedWithoutComments());
-            calledMethods[i] = calledMethod;
+            calledMethods[2 * i] = calledMethod;
 
             calledMethod = new CalledMethod();
             calledMethod.setCalledMethodName(codeCloneResults.get(i).getMethodPair().getSecond().getFilePath() + " : " + codeCloneResults.get(i).getMethodPair().getSecond().getMethodName());
             calledMethod.setCalledMethodDetail(codeCloneResults.get(i).getMethodPair().getSecond().getStringifiedWithoutComments());
-            calledMethods[i + 1] = calledMethod;
+            calledMethods[2 * i + 1] = calledMethod;
         }
+        aspectMiningDetailResult.setCallingMethods(callingMethods);
         aspectMiningDetailResult.setCalledMethod(calledMethods);
 
         return aspectMiningDetailResult;
     }
 
-//    private AspectMiningDetailResult extractAroundAdviceDetailResults(AspectMiningByCategory aroundAdviceCandidatesAsInterface) {
+//    private AspectMiningDetailResult extractAdviceDetailResults(AspectMiningByCategory aroundAdviceCandidatesAsInterface) {
 //        AspectMiningDetailResult aspectMiningDetailResult = new AspectMiningDetailResult();
 //        aspectMiningDetailResult.setCrossCuttingConcernCategoryDisplayName("Cross Cutting Concern As Interface Around Advice");
 //        aspectMiningDetailResult.setLeftSideHeading("First Duplicate Method");
@@ -163,7 +170,6 @@ public class CrossCuttingConcernAsInterfaceService
                                                                           List<CompilationUnitWrapper> allInterfaces) {
         ArrayList<CodeCloneResult> codeCloneResults = new  ArrayList<>();
 
-        int adviceCandidatesWithCommonInterface = 0;
         for (CodeCloneResult codeCloneResult : adviceCandidates) {
             Set<String> commonInterfaceNames = getInterfacesInCommon(
                     enclosingClassImplements(codeCloneResult.getMethodPair().getFirst()),

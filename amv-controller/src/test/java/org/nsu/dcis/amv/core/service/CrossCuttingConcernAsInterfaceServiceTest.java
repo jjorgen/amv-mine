@@ -64,6 +64,12 @@ public class CrossCuttingConcernAsInterfaceServiceTest {
     }
 
     @Test
+    public void getAfterAdviceDetailResults() throws Exception {
+        AspectMiningDetailResult aroundAdviceDetailResults = crossCuttingConcernAsInterfaceService.getAfterAdviceDetailResults();
+        assertNotNull(aroundAdviceDetailResults);
+    }
+
+    @Test
     public void getAroundAdviceDetailResults() throws Exception {
         AspectMiningDetailResult aroundAdviceDetailResults = crossCuttingConcernAsInterfaceService.getAroundAdviceDetailResults();
         assertNotNull(aroundAdviceDetailResults);

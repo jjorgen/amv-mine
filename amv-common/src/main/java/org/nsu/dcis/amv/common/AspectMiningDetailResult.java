@@ -14,8 +14,9 @@ public class AspectMiningDetailResult {
     private String crossCuttingConcernCategoryDisplayName;
     private String leftSideHeading;
     private String rightSideHeading;
-    private String callingMethod;
+//    private String callingMethod;
     private CalledMethod[] calledMethod;
+    private String[] callingMethod;
     private String crossCuttingConcernCategory;
 
     private Logger log = Logger.getLogger(getClass().getName());
@@ -44,13 +45,13 @@ public class AspectMiningDetailResult {
         this.rightSideHeading = rightSideHeading;
     }
 
-    public String getCallingMethod() {
-        return callingMethod;
-    }
-
-    public void setCallingMethod(String callingMethod) {
-        this.callingMethod = callingMethod;
-    }
+//    public String getCallingMethod() {
+//        return callingMethod;
+//    }
+//
+//    public void setCallingMethod(String callingMethod) {
+//        this.callingMethod = callingMethod;
+//    }
 
     public String getCrossCuttingConcernCategory() {
         return crossCuttingConcernCategory;
@@ -68,6 +69,14 @@ public class AspectMiningDetailResult {
         this.calledMethod = calledMethod;
     }
 
+    public String[] getCallingMethod() {
+        return callingMethod;
+    }
+
+    public void setCallingMethods(String[] callingMethod) {
+        this.callingMethod = callingMethod;
+    }
+
     @Override
     public String toString() {
         return "AspectMiningDetailResult{" +
@@ -76,6 +85,7 @@ public class AspectMiningDetailResult {
                 ", rightSideHeading='" + rightSideHeading + '\'' +
                 ", callingMethod='" + callingMethod + '\'' +
                 ", calledMethod=" + Arrays.toString(calledMethod) +
+                ", callingMethods=" + Arrays.toString(callingMethod) +
                 ", crossCuttingConcernCategory='" + crossCuttingConcernCategory + '\'' +
                 '}';
     }
